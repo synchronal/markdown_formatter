@@ -24,6 +24,10 @@ defmodule MarkdownFormatter.Renderer do
   # paragraph tag
   defp render({"p", [], contents, %{}}, doc, opts), do: add_section(doc, render(contents, [], opts))
 
+  # links
+  defp render({"a", [{"href", path}], contents, %{}}, doc, opts),
+    do: ["(#{path})", "]", render(contents, [], opts), "[" | doc]
+
   # code
   defp render({"code", [{"class", "inline"}], contents, %{}}, doc, opts),
     do: ["`", render(contents, [], opts), "`" | doc]

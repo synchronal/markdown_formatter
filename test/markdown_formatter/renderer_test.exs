@@ -52,6 +52,12 @@ defmodule MarkdownFormatter.RendererTest do
       |> assert_eq("***bold italic content***")
     end
 
+    test "renders links" do
+      [{"a", [{"href", "path/to/file.md"}], ["I am a link"], %{}}]
+      |> Renderer.to_markdown()
+      |> assert_eq("[I am a link](path/to/file.md)")
+    end
+
     test "renders inline code fragments" do
       [{"p", [], [{"code", [{"class", "inline"}], ["hello"], %{}}], %{}}]
       |> Renderer.to_markdown()
