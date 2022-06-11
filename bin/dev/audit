@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
-
+set -u
 set -o pipefail
 
-source "./.medic/_support/cecho.sh"
-source "./.medic/_support/step.sh"
+trap "exit" INT
 
-step "checking for docs errors" "mix docs 2>&1 | grep -v 'warning:' || exit 1"
-step "credo" "mix credo --strict"
-step "dialyzer" "mix dialyzer"
-step "audit" "mix deps.audit"
-step "check unused deps" "mix deps.unlock --check-unused"
+source ".medic/_support/doctor.sh"
+
+check "Check formatting" "bin/dev/format --check" "bin/dev/format --all"
+step "Auditing Elixir deps" "mix deps.audit"
+step "Credo" "mix credo --strict"
+step "Dialyzer" "mix dialyzer"
+check "Checking for unused deps" "mix deps.unlock --check-unused" "mix deps.clean --unused --unlock"
