@@ -29,6 +29,21 @@ defmodule MarkdownFormatter.RendererTest do
                """)
     end
 
+    test "renders italic" do
+      assert [{"em", [], ["italicized content"], %{}}]
+             |> Renderer.to_markdown() == "*italicized content*"
+    end
+
+    test "renders bold" do
+      assert [{"strong", [], ["bold content"], %{}}]
+             |> Renderer.to_markdown() == "**bold content**"
+    end
+
+    test "renders bold italic" do
+      assert [{"strong", [], [{"em", [], ["bold italic content"], %{}}], %{}}]
+             |> Renderer.to_markdown() == "***bold italic content***"
+    end
+
     test "renders inline code fragments" do
       assert [{"p", [], [{"code", [{"class", "inline"}], ["hello"], %{}}], %{}}]
              |> Renderer.to_markdown() == "`hello`"

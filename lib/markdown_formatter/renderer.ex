@@ -28,6 +28,10 @@ defmodule MarkdownFormatter.Renderer do
   defp render({"code", [{"class", "inline"}], contents, %{}}, doc), do: ["`", render(contents, []), "`" | doc]
   defp render({"pre", [], [{"code", [], contents, %{}}], %{}}, doc), do: ["\n```", render(contents, []), "```\n" | doc]
 
+  # text formatting
+  defp render({"em", [], contents, %{}}, doc), do: ["*", render(contents, []), "*" | doc]
+  defp render({"strong", [], contents, %{}}, doc), do: ["**", render(contents, []), "**" | doc]
+
   # text node
   defp render(text, doc) when is_binary(text), do: [text | doc]
   defp render([text], doc) when is_binary(text), do: [text | doc]
