@@ -1,68 +1,77 @@
 defmodule MarkdownFormatter.RendererTest do
   # @related [subject](/lib/markdown_formatter/renderer.ex)
-  use ExUnit.Case
+  use Test.Case
   doctest MarkdownFormatter.Renderer
   alias MarkdownFormatter.Renderer
 
   describe "to_markdown" do
     test "renders headers" do
-      assert [{"h1", [], ["primary"], %{}}] |> Renderer.to_markdown() == "# primary"
-      assert [{"h2", [], ["secondary"], %{}}] |> Renderer.to_markdown() == "## secondary"
-      assert [{"h3", [], ["tertiary"], %{}}] |> Renderer.to_markdown() == "### tertiary"
-      assert [{"h4", [], ["quaternary"], %{}}] |> Renderer.to_markdown() == "#### quaternary"
-      assert [{"h5", [], ["quinary"], %{}}] |> Renderer.to_markdown() == "##### quinary"
-      assert [{"h6", [], ["senary"], %{}}] |> Renderer.to_markdown() == "###### senary"
+      [{"h1", [], ["primary"], %{}}] |> Renderer.to_markdown() |> assert_eq("# primary")
+      [{"h2", [], ["secondary"], %{}}] |> Renderer.to_markdown() |> assert_eq("## secondary")
+      [{"h3", [], ["tertiary"], %{}}] |> Renderer.to_markdown() |> assert_eq("### tertiary")
+      [{"h4", [], ["quaternary"], %{}}] |> Renderer.to_markdown() |> assert_eq("#### quaternary")
+      [{"h5", [], ["quinary"], %{}}] |> Renderer.to_markdown() |> assert_eq("##### quinary")
+      [{"h6", [], ["senary"], %{}}] |> Renderer.to_markdown() |> assert_eq("###### senary")
     end
 
     test "renders paragraphs to content" do
-      assert [{"p", [], ["text"], %{}}]
-             |> Renderer.to_markdown() == "text"
+      [{"p", [], ["text"], %{}}]
+      |> Renderer.to_markdown()
+      |> assert_eq("text")
     end
 
     test "concatenates paragraphs" do
-      assert [{"p", [], ["first"], %{}}, {"p", [], ["second"], %{}}]
-             |> Renderer.to_markdown() ==
-               String.trim("""
-               first
+      [{"p", [], ["first"], %{}}, {"p", [], ["second"], %{}}]
+      |> Renderer.to_markdown()
+      |> assert_eq(
+        String.trim("""
+        first
 
-               second
-               """)
+        second
+        """)
+      )
     end
 
     test "renders italic" do
-      assert [{"em", [], ["italicized content"], %{}}]
-             |> Renderer.to_markdown() == "*italicized content*"
+      [{"em", [], ["italicized content"], %{}}]
+      |> Renderer.to_markdown()
+      |> assert_eq("*italicized content*")
     end
 
     test "renders bold" do
-      assert [{"strong", [], ["bold content"], %{}}]
-             |> Renderer.to_markdown() == "**bold content**"
+      [{"strong", [], ["bold content"], %{}}]
+      |> Renderer.to_markdown()
+      |> assert_eq("**bold content**")
     end
 
     test "renders bold italic" do
-      assert [{"strong", [], [{"em", [], ["bold italic content"], %{}}], %{}}]
-             |> Renderer.to_markdown() == "***bold italic content***"
+      [{"strong", [], [{"em", [], ["bold italic content"], %{}}], %{}}]
+      |> Renderer.to_markdown()
+      |> assert_eq("***bold italic content***")
     end
 
     test "renders inline code fragments" do
-      assert [{"p", [], [{"code", [{"class", "inline"}], ["hello"], %{}}], %{}}]
-             |> Renderer.to_markdown() == "`hello`"
+      [{"p", [], [{"code", [{"class", "inline"}], ["hello"], %{}}], %{}}]
+      |> Renderer.to_markdown()
+      |> assert_eq("`hello`")
 
-      assert [
-               {"p", [],
-                [
-                  "text ",
-                  {"code", [{"class", "inline"}], ["stuff"], %{}},
-                  " things and ",
-                  {"code", [{"class", "inline"}], ["junk"], %{}}
-                ], %{}}
-             ]
-             |> Renderer.to_markdown() == "text `stuff` things and `junk`"
+      [
+        {"p", [],
+         [
+           "text ",
+           {"code", [{"class", "inline"}], ["stuff"], %{}},
+           " things and ",
+           {"code", [{"class", "inline"}], ["junk"], %{}}
+         ], %{}}
+      ]
+      |> Renderer.to_markdown()
+      |> assert_eq("text `stuff` things and `junk`")
     end
 
     test "renders code blocks" do
-      assert [{"pre", [], [{"code", [], ["some code\nin a block"], %{}}], %{}}]
-             |> Renderer.to_markdown() == "```\nsome code\nin a block\n```"
+      [{"pre", [], [{"code", [], ["some code\nin a block"], %{}}], %{}}]
+      |> Renderer.to_markdown()
+      |> assert_eq("```\nsome code\nin a block\n```")
     end
   end
 end
