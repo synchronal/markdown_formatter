@@ -29,11 +29,11 @@ defmodule MarkdownFormatter.Renderer do
     do: ["(#{path})", "]", render(contents, [], opts), "[" | doc]
 
   # code
-  defp render({"code", [{"class", "inline"}], contents, %{}}, doc, opts),
-    do: ["`", render(contents, [], opts), "`" | doc]
+  defp render({"code", [{"class", "inline"}], contents, %{}}, doc, _opts),
+    do: ["`", contents, "`" | doc]
 
-  defp render({"pre", [], [{"code", [], contents, %{}}], %{}}, doc, opts),
-    do: ["\n```", render(contents, [], opts), "```\n" | doc]
+  defp render({"pre", [], [{"code", [], contents, %{}}], %{}}, doc, _opts),
+    do: ["\n```", contents, "```\n" | doc]
 
   # text formatting
   defp render({"em", [], contents, %{}}, doc, opts), do: ["*", render(contents, [], opts), "*" | doc]
