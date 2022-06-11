@@ -19,5 +19,21 @@ defmodule MarkdownFormatter.RendererTest do
                second
                """)
     end
+
+    test "renders inline code fragments" do
+      assert [{"p", [], [{"code", [{"class", "inline"}], ["hello"], %{}}], %{}}]
+             |> Renderer.to_markdown() == "`hello`"
+
+      assert [
+               {"p", [],
+                [
+                  "text ",
+                  {"code", [{"class", "inline"}], ["stuff"], %{}},
+                  " things and ",
+                  {"code", [{"class", "inline"}], ["junk"], %{}}
+                ], %{}}
+             ]
+             |> Renderer.to_markdown() == "text `stuff` things and `junk`"
+    end
   end
 end
