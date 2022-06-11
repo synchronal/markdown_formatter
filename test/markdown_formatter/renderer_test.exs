@@ -73,5 +73,29 @@ defmodule MarkdownFormatter.RendererTest do
       |> Renderer.to_markdown()
       |> assert_eq("```\nsome code\nin a block\n```")
     end
+
+    test "renders ordered lists" do
+      [
+        {"ol", [],
+         [
+           {"li", [], ["first item"], %{}},
+           {"li", [], ["second item"], %{}}
+         ], %{}}
+      ]
+      |> Renderer.to_markdown()
+      |> assert_eq("1. first item\n1. second item\n")
+    end
+
+    test "renders unordered lists" do
+      [
+        {"ul", [],
+         [
+           {"li", [], ["first item"], %{}},
+           {"li", [], ["second item"], %{}}
+         ], %{}}
+      ]
+      |> Renderer.to_markdown()
+      |> assert_eq("- first item\n- second item\n")
+    end
   end
 end
