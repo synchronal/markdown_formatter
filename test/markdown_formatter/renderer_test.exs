@@ -44,5 +44,10 @@ defmodule MarkdownFormatter.RendererTest do
              ]
              |> Renderer.to_markdown() == "text `stuff` things and `junk`"
     end
+
+    test "renders code blocks" do
+      assert [{"pre", [], [{"code", [], ["some code\nin a block"], %{}}], %{}}]
+             |> Renderer.to_markdown() == "```\nsome code\nin a block\n```"
+    end
   end
 end

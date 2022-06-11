@@ -24,8 +24,9 @@ defmodule MarkdownFormatter.Renderer do
   # paragraph tag
   defp render({"p", [], contents, %{}}, doc), do: add_section(doc, render(contents, []))
 
-  # inline code tag
+  # code
   defp render({"code", [{"class", "inline"}], contents, %{}}, doc), do: ["`", render(contents, []), "`" | doc]
+  defp render({"pre", [], [{"code", [], contents, %{}}], %{}}, doc), do: ["\n```", render(contents, []), "```\n" | doc]
 
   # text node
   defp render(text, doc) when is_binary(text), do: [text | doc]
