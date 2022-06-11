@@ -1,9 +1,12 @@
 *.ez
+.medic/.doctor.out
+.medic/skipped
 /.fetch
 /_build/
 /cover/
 /deps/
 /doc/
+/priv/plts/
 /tmp/
 erl_crash.dump
 markdown_formatter-*.tar

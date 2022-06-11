@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+test -e "${HOME}/.asdf/asdf.sh" && source "${HOME}/.asdf/asdf.sh"
+test -e "$(brew --prefix asdf)/asdf.sh" && source "$(brew --prefix asdf)/asdf.sh"
+
+PATH=$ASDF_DIR/shims:$ASDF_DIR/bin:$PATH mix format --check-formatted
