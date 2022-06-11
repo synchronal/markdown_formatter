@@ -11,22 +11,29 @@ defmodule MarkdownFormatter.Renderer do
   end
 
   # end recursion
-  defp render([], document), do: document |> Enum.reverse()
+  defp render([], doc), do: Enum.reverse(doc)
+
+  # headers
+  defp render({"h1", [], contents, %{}}, doc), do: add_section(doc, render(["# ", contents], []))
+  defp render({"h2", [], contents, %{}}, doc), do: add_section(doc, render(["## ", contents], []))
+  defp render({"h3", [], contents, %{}}, doc), do: add_section(doc, render(["### ", contents], []))
+  defp render({"h4", [], contents, %{}}, doc), do: add_section(doc, render(["#### ", contents], []))
+  defp render({"h5", [], contents, %{}}, doc), do: add_section(doc, render(["##### ", contents], []))
+  defp render({"h6", [], contents, %{}}, doc), do: add_section(doc, render(["###### ", contents], []))
 
   # paragraph tag
-  defp render({"p", [], contents, %{}}, document), do: add_section(document, render(contents, []))
+  defp render({"p", [], contents, %{}}, doc), do: add_section(doc, render(contents, []))
 
   # inline code tag
-  defp render({"code", [{"class", "inline"}], contents, %{}}, document),
-    do: ["`", render(contents, []), "`" | document]
+  defp render({"code", [{"class", "inline"}], contents, %{}}, doc), do: ["`", render(contents, []), "`" | doc]
 
   # text node
-  defp render(text, document) when is_binary(text), do: [text | document]
-  defp render([text], document) when is_binary(text), do: [text | document]
+  defp render(text, doc) when is_binary(text), do: [text | doc]
+  defp render([text], doc) when is_binary(text), do: [text | doc]
 
   # handle next element
-  defp render([head | tail], document), do: render(tail, render(head, document))
+  defp render([head | tail], doc), do: render(tail, render(head, doc))
 
   defp add_section([], contents), do: [contents]
-  defp add_section(document, contents), do: [contents, "\n\n" | document]
+  defp add_section(doc, contents), do: [contents, "\n\n" | doc]
 end

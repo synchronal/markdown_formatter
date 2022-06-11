@@ -5,6 +5,15 @@ defmodule MarkdownFormatter.RendererTest do
   alias MarkdownFormatter.Renderer
 
   describe "to_markdown" do
+    test "renders headers" do
+      assert [{"h1", [], ["primary"], %{}}] |> Renderer.to_markdown() == "# primary"
+      assert [{"h2", [], ["secondary"], %{}}] |> Renderer.to_markdown() == "## secondary"
+      assert [{"h3", [], ["tertiary"], %{}}] |> Renderer.to_markdown() == "### tertiary"
+      assert [{"h4", [], ["quaternary"], %{}}] |> Renderer.to_markdown() == "#### quaternary"
+      assert [{"h5", [], ["quinary"], %{}}] |> Renderer.to_markdown() == "##### quinary"
+      assert [{"h6", [], ["senary"], %{}}] |> Renderer.to_markdown() == "###### senary"
+    end
+
     test "renders paragraphs to content" do
       assert [{"p", [], ["text"], %{}}]
              |> Renderer.to_markdown() == "text"
