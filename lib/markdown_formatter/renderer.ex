@@ -5,37 +5,45 @@ defmodule MarkdownFormatter.Renderer do
   defmodule RenderState do
     @moduledoc false
 
-    defstruct ~w{parent}a
+    defstruct prefix: ""
 
-    def new(), do: __struct__()
-    def parent(state, parent), do: %{state | parent: parent}
+    def new, do: __struct__()
+    def prefix(state, prefix), do: %{state | prefix: prefix}
+    def reset(state), do: %{state | prefix: ""}
   end
+
+  alias RenderState, as: S
 
   @doc "Given AST produced from Earmark, turn it back into Markdown."
   @spec to_markdown(Earmark.ast()) :: binary()
   def to_markdown(ast) when is_list(ast) do
     ast
-    |> render([], RenderState.new())
+    |> render([], S.new())
+    |> Enum.reverse()
     |> to_string()
   end
 
   # end recursion
-  defp render([], doc, _opts), do: Enum.reverse(doc)
+  defp render([], [doc], _opts) when is_list(doc), do: doc
+  defp render([], doc, _opts), do: doc
 
   # headers
-  defp render({"h1", [], contents, %{}}, doc, opts), do: add_section(doc, render(contents, ["# "], opts))
-  defp render({"h2", [], contents, %{}}, doc, opts), do: add_section(doc, render(contents, ["## "], opts))
-  defp render({"h3", [], contents, %{}}, doc, opts), do: add_section(doc, render(contents, ["### "], opts))
-  defp render({"h4", [], contents, %{}}, doc, opts), do: add_section(doc, render(contents, ["#### "], opts))
-  defp render({"h5", [], contents, %{}}, doc, opts), do: add_section(doc, render(contents, ["##### "], opts))
-  defp render({"h6", [], contents, %{}}, doc, opts), do: add_section(doc, render(contents, ["###### "], opts))
+  defp render({"h1", [], contents, %{}}, doc, opts), do: add_section(doc, "# #{render(contents, [], opts)}")
+  defp render({"h2", [], contents, %{}}, doc, opts), do: add_section(doc, "## #{render(contents, [], opts)}")
+  defp render({"h3", [], contents, %{}}, doc, opts), do: add_section(doc, "### #{render(contents, [], opts)}")
+  defp render({"h4", [], contents, %{}}, doc, opts), do: add_section(doc, "#### #{render(contents, [], opts)}")
+  defp render({"h5", [], contents, %{}}, doc, opts), do: add_section(doc, "##### #{render(contents, [], opts)}")
+  defp render({"h6", [], contents, %{}}, doc, opts), do: add_section(doc, "###### #{render(contents, [], opts)}")
 
   # paragraph tag
-  defp render({"p", [], contents, %{}}, doc, opts), do: add_section(doc, render(contents, [], opts))
+  defp render({"p", [], contents, %{}}, doc, opts), do: add_section(doc, render(contents, [opts.prefix], S.reset(opts)))
+
+  # blockquote
+  defp render({"blockquote", [], contents, %{}}, doc, opts), do: render(contents, doc, S.prefix(opts, "> "))
 
   # links
   defp render({"a", [{"href", path}], contents, %{}}, doc, opts),
-    do: ["(#{path})", "]", render(contents, [], opts), "[" | doc]
+    do: ["[#{render(contents, [], S.reset(opts))}](#{path})" | doc]
 
   # code
   defp render({"code", [{"class", "inline"}], contents, %{}}, doc, _opts),
@@ -49,10 +57,9 @@ defmodule MarkdownFormatter.Renderer do
   defp render({"strong", [], contents, %{}}, doc, opts), do: ["**", render(contents, [], opts), "**" | doc]
 
   # lists
-  defp render({"ol", [], contents, %{}}, doc, opts), do: render(contents, doc, RenderState.parent(opts, :ol))
-  defp render({"ul", [], contents, %{}}, doc, opts), do: render(contents, doc, RenderState.parent(opts, :ul))
-  defp render({"li", [], contents, %{}}, doc, %{parent: :ol}), do: doc ++ [render(contents, ["1. "], nil), "\n"]
-  defp render({"li", [], contents, %{}}, doc, %{parent: :ul}), do: doc ++ [render(contents, ["- "], nil), "\n"]
+  defp render({"ol", [], contents, %{}}, doc, opts), do: render(contents, doc, RenderState.prefix(opts, "1. "))
+  defp render({"ul", [], contents, %{}}, doc, opts), do: render(contents, doc, RenderState.prefix(opts, "- "))
+  defp render({"li", [], contents, %{}}, doc, opts), do: ["\n", render(contents, [], S.reset(opts)), opts.prefix | doc]
 
   # text node
   defp render(text, doc, _opts) when is_binary(text), do: [text | doc]

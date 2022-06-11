@@ -20,14 +20,45 @@ defmodule MarkdownFormatter.RendererTest do
       |> assert_eq("text")
     end
 
+    @tag :skip
     test "concatenates items with \\n\\n" do
-      [{"h1", [], ["header"], %{}}, {"p", [], ["some content"], %{}}, {"h2", [], ["subheader"], %{}}]
+      """
+      # header
+
+      some content [with a link](/path/to/file.txt).
+
+      and some other text
+
+      * Unordered list
+      * With elements
+
+      > Some block quote text
+      that wraps lines.
+
+      1. Ordered list
+      2. With elements
+
+      ## subheader
+      """
+      |> EarmarkParser.as_ast()
+      |> elem(1)
       |> Renderer.to_markdown()
       |> assert_eq(
         String.trim("""
         # header
 
-        some content
+        some content [with a link](/path/to/file.txt).
+
+        and some other text
+
+        - Unordered list
+        - With elements
+
+        > Some block quote text
+        that wraps lines.
+
+        1. Ordered list
+        1. With elements
 
         ## subheader
         """)
@@ -104,6 +135,12 @@ defmodule MarkdownFormatter.RendererTest do
       ]
       |> Renderer.to_markdown()
       |> assert_eq("- first item\n- second item\n")
+    end
+
+    test "renders blockquotes" do
+      [{"blockquote", [], [{"p", [], ["I am inset text\nwith multiple lines."], %{}}], %{}}]
+      |> Renderer.to_markdown()
+      |> assert_eq("> I am inset text\nwith multiple lines.")
     end
   end
 end
