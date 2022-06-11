@@ -20,14 +20,16 @@ defmodule MarkdownFormatter.RendererTest do
       |> assert_eq("text")
     end
 
-    test "concatenates paragraphs" do
-      [{"p", [], ["first"], %{}}, {"p", [], ["second"], %{}}]
+    test "concatenates items with \\n\\n" do
+      [{"h1", [], ["header"], %{}}, {"p", [], ["some content"], %{}}, {"h2", [], ["subheader"], %{}}]
       |> Renderer.to_markdown()
       |> assert_eq(
         String.trim("""
-        first
+        # header
 
-        second
+        some content
+
+        ## subheader
         """)
       )
     end
