@@ -2,8 +2,6 @@ defmodule MarkdownFormatter.Renderer do
   # @related [test](/test/markdown_formatter/renderer_test.exs)
   @moduledoc false
 
-  @empty_queue Qex.new()
-
   defmodule RenderState do
     @moduledoc false
 
@@ -14,8 +12,43 @@ defmodule MarkdownFormatter.Renderer do
     def reset(state), do: %{state | prefix: ""}
   end
 
-  alias Qex, as: Q
+  defmodule Q do
+    @moduledoc false
+
+    @enforce_keys [:q]
+    defstruct [:q]
+
+    @type t() :: %__MODULE__{
+            q: :queue.queue()
+          }
+
+    def new(values \\ [])
+    def new(%Q{} = q), do: q
+    def new(values), do: __struct__(q: :queue.from_list(values))
+
+    def push(q, value), do: __struct__(q: :queue.in(value, q.q))
+
+    defimpl Collectable do
+      def into(%Q{} = q) do
+        {q, &push/2}
+      end
+
+      defp push(q, {:cont, item}), do: Q.push(q, item)
+      defp push(q, :done), do: q
+      defp push(_q, :halt), do: :ok
+    end
+
+    defimpl Enumerable do
+      def count(%Q{q: q}), do: {:ok, :queue.len(q)}
+      def member?(%Q{q: q}, item), do: {:ok, :queue.member(item, q)}
+      def reduce(%Q{q: q}, acc, fun), do: Enumerable.List.reduce(:queue.to_list(q), acc, fun)
+      def slice(%Q{}), do: {:error, __MODULE__}
+    end
+  end
+
   alias RenderState, as: S
+
+  @empty_queue Q.new()
 
   @doc "Given AST produced from Earmark, turn it back into Markdown."
   @spec to_markdown(Earmark.ast()) :: binary()
@@ -81,6 +114,6 @@ defmodule MarkdownFormatter.Renderer do
   defp add_section(@empty_queue, contents), do: contents
   defp add_section(doc, contents), do: push(doc, ["\n\n", Enum.to_list(contents), "\n\n"])
 
-  defp push(%Qex{} = doc, contents), do: Q.push(doc, contents)
+  defp push(%Q{} = doc, contents), do: Q.push(doc, contents)
   defp push(doc, contents), do: doc |> Q.new() |> Q.push(contents)
 end
