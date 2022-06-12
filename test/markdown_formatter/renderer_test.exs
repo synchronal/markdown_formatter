@@ -39,11 +39,10 @@ defmodule MarkdownFormatter.RendererTest do
 
       ## subheader
       """
-      |> EarmarkParser.as_ast()
-      |> elem(1)
+      |> parse!()
       |> Renderer.to_markdown()
       |> assert_eq(
-        String.trim("""
+        """
         # header
 
         some content [with a link](/path/to/file.txt).
@@ -60,7 +59,8 @@ defmodule MarkdownFormatter.RendererTest do
         1. With elements
 
         ## subheader
-        """)
+        """,
+        trim: true
       )
     end
 
@@ -134,6 +134,22 @@ defmodule MarkdownFormatter.RendererTest do
       ]
       |> Renderer.to_markdown()
       |> assert_eq("- first item\n- second item")
+    end
+
+    test "renders nested text under list items" do
+      """
+      - item with
+        nested text.
+      """
+      |> parse!()
+      |> Renderer.to_markdown()
+      |> assert_eq(
+        """
+        - item with
+          nested text.
+        """,
+        trim: true
+      )
     end
 
     test "renders blockquotes" do

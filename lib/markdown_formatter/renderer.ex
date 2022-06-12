@@ -5,9 +5,10 @@ defmodule MarkdownFormatter.Renderer do
   defmodule RenderState do
     @moduledoc false
 
-    defstruct prefix: ""
+    defstruct depth: 0, prefix: ""
 
     def new, do: __struct__()
+    def inc(state), do: %{state | depth: state.depth + 1}
     def prefix(state, prefix), do: %{state | prefix: prefix}
     def reset(state), do: %{state | prefix: ""}
   end
@@ -107,15 +108,15 @@ defmodule MarkdownFormatter.Renderer do
   defp render({"strong", [], contents, %{}}, doc, opts), do: push(doc, ["**", render(contents, Q.new(), opts), "**"])
 
   # lists
-  defp render({"ol", [], contents, %{}}, doc, opts), do: render(contents, doc, RenderState.prefix(opts, "1. "))
-  defp render({"ul", [], contents, %{}}, doc, opts), do: render(contents, doc, RenderState.prefix(opts, "- "))
+  defp render({"ol", [], contents, %{}}, doc, opts), do: render(contents, doc, S.prefix(opts, "1. ") |> S.inc())
+  defp render({"ul", [], contents, %{}}, doc, opts), do: render(contents, doc, S.prefix(opts, "- ") |> S.inc())
 
   defp render({"li", [], contents, %{}}, doc, opts),
     do: push(doc, [opts.prefix, render(contents, Q.new(), S.reset(opts)), "\n"])
 
   # text node
-  defp render([text], @empty_queue, _opts) when is_binary(text), do: text
-  defp render(text, @empty_queue, _opts) when is_binary(text), do: text
+  defp render([text], @empty_queue, opts) when is_binary(text), do: text |> with_depth(opts.depth)
+  defp render(text, @empty_queue, opts) when is_binary(text), do: text |> with_depth(opts.depth)
   defp render([text], doc, _opts) when is_binary(text), do: push(doc, text) |> to_string()
   defp render(text, doc, _opts) when is_binary(text), do: push(doc, text) |> to_string()
 
@@ -130,4 +131,6 @@ defmodule MarkdownFormatter.Renderer do
 
   defp push(%Q{} = doc, contents), do: Q.push(doc, contents)
   defp push(doc, contents), do: doc |> Q.new() |> Q.push(contents)
+
+  defp with_depth(text, depth), do: text |> String.replace("\n",  "\n" <> String.duplicate(" ", depth * 2))
 end
