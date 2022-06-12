@@ -26,7 +26,8 @@ defmodule MarkdownFormatter.MixProject do
       {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false},
       {:earmark, "~> 1.4"},
       {:ex_doc, "~> 0.28.4", only: :dev, runtime: false},
-      {:mix_audit, "~> 1.0", only: [:dev, :test], runtime: false}
+      {:mix_audit, "~> 1.0", only: [:dev, :test], runtime: false},
+      {:qex, "~> 0.5.1"}
     ]
   end
 
