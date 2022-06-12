@@ -19,12 +19,12 @@ defmodule MarkdownFormatter.Renderer do
   def to_markdown(ast) when is_list(ast) do
     ast
     |> render([], S.new())
-    |> Enum.reverse()
     |> to_string()
+    |> String.trim()
+    |> String.replace(~r|\n\n\n*|, "\n\n")
   end
 
   # end recursion
-  defp render([], [doc], _opts) when is_list(doc), do: doc
   defp render([], doc, _opts), do: doc
 
   # headers
@@ -43,30 +43,31 @@ defmodule MarkdownFormatter.Renderer do
 
   # links
   defp render({"a", [{"href", path}], contents, %{}}, doc, opts),
-    do: ["[#{render(contents, [], S.reset(opts))}](#{path})" | doc]
+    do: doc ++ ["[#{render(contents, [], S.reset(opts))}](#{path})"]
 
   # code
   defp render({"code", [{"class", "inline"}], contents, %{}}, doc, _opts),
-    do: ["`", contents, "`" | doc]
+    do: doc ++ ["`", contents, "`"]
 
   defp render({"pre", [], [{"code", [], contents, %{}}], %{}}, doc, _opts),
-    do: ["\n```", contents, "```\n" | doc]
+    do: doc ++ ["```\n", contents, "\n```"]
 
   # text formatting
-  defp render({"em", [], contents, %{}}, doc, opts), do: ["*", render(contents, [], opts), "*" | doc]
-  defp render({"strong", [], contents, %{}}, doc, opts), do: ["**", render(contents, [], opts), "**" | doc]
+  defp render({"em", [], contents, %{}}, doc, opts), do: doc ++ ["*", render(contents, [], opts), "*"]
+  defp render({"strong", [], contents, %{}}, doc, opts), do: doc ++ ["**", render(contents, [], opts), "**"]
 
   # lists
   defp render({"ol", [], contents, %{}}, doc, opts), do: render(contents, doc, RenderState.prefix(opts, "1. "))
   defp render({"ul", [], contents, %{}}, doc, opts), do: render(contents, doc, RenderState.prefix(opts, "- "))
-  defp render({"li", [], contents, %{}}, doc, opts), do: ["\n", render(contents, [], S.reset(opts)), opts.prefix | doc]
+  defp render({"li", [], contents, %{}}, doc, opts), do: doc ++ [opts.prefix, render(contents, [], S.reset(opts)), "\n"]
 
   # text node
-  defp render(text, doc, _opts) when is_binary(text), do: [text | doc]
+  defp render([text], [], _opts) when is_binary(text), do: text
+  defp render(text, doc, _opts) when is_binary(text), do: doc ++ [text]
 
   # handle next element
   defp render([head | tail], doc, opts), do: render(tail, render(head, doc, opts), opts)
 
   defp add_section([], contents), do: [contents]
-  defp add_section(doc, contents), do: [contents, "\n\n" | doc]
+  defp add_section(doc, contents), do: doc ++ ["\n\n", contents, "\n\n"]
 end

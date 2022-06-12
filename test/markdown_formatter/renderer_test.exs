@@ -20,7 +20,6 @@ defmodule MarkdownFormatter.RendererTest do
       |> assert_eq("text")
     end
 
-    @tag :skip
     test "concatenates items with \\n\\n" do
       """
       # header
@@ -122,7 +121,7 @@ defmodule MarkdownFormatter.RendererTest do
          ], %{}}
       ]
       |> Renderer.to_markdown()
-      |> assert_eq("1. first item\n1. second item\n")
+      |> assert_eq("1. first item\n1. second item")
     end
 
     test "renders unordered lists" do
@@ -134,7 +133,7 @@ defmodule MarkdownFormatter.RendererTest do
          ], %{}}
       ]
       |> Renderer.to_markdown()
-      |> assert_eq("- first item\n- second item\n")
+      |> assert_eq("- first item\n- second item")
     end
 
     test "renders blockquotes" do
