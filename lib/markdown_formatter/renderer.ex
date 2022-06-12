@@ -24,7 +24,7 @@ defmodule MarkdownFormatter.Renderer do
 
     def new(values \\ [])
     def new(%Q{} = q), do: q
-    def new(values), do: __struct__(q: :queue.from_list(values))
+    def new(values), do: __struct__(q: :queue.from_list(List.wrap(values)))
 
     def push(q, value), do: __struct__(q: :queue.in(value, q.q))
 
@@ -44,6 +44,19 @@ defmodule MarkdownFormatter.Renderer do
       def reduce(%Q{q: q}, acc, fun), do: Enumerable.List.reduce(:queue.to_list(q), acc, fun)
       def slice(%Q{}), do: {:error, __MODULE__}
     end
+
+    defimpl Inspect do
+      import Inspect.Algebra
+
+      def inspect(%Q{} = q, opts) do
+        concat(["Q.new(", to_doc(Enum.to_list(q), opts), ")"])
+      end
+    end
+
+    defimpl String.Chars do
+      def to_string(%Q{} = q),
+        do: q |> Enum.to_list() |> Kernel.to_string()
+    end
   end
 
   alias RenderState, as: S
@@ -61,7 +74,7 @@ defmodule MarkdownFormatter.Renderer do
   end
 
   # end recursion
-  defp render([], doc, _opts), do: Enum.to_list(doc)
+  defp render([], doc, _opts), do: doc
 
   # headers
   defp render({"h1", [], contents, %{}}, doc, opts), do: add_section(doc, ["# #{render(contents, Q.new(), opts)}"])
@@ -103,16 +116,17 @@ defmodule MarkdownFormatter.Renderer do
   # text node
   defp render([text], @empty_queue, _opts) when is_binary(text), do: text
   defp render(text, @empty_queue, _opts) when is_binary(text), do: text
-  defp render([text], doc, _opts) when is_binary(text), do: push(doc, text)
-  defp render(text, doc, _opts) when is_binary(text), do: push(doc, text)
+  defp render([text], doc, _opts) when is_binary(text), do: push(doc, text) |> to_string()
+  defp render(text, doc, _opts) when is_binary(text), do: push(doc, text) |> to_string()
 
   # handle next element
+  defp render([head], doc, opts), do: render(head, doc, opts) |> to_string()
   defp render([head | tail], doc, opts), do: render(tail, render(head, doc, opts), opts)
 
   # # #
 
   defp add_section(@empty_queue, contents), do: contents
-  defp add_section(doc, contents), do: push(doc, ["\n\n", Enum.to_list(contents), "\n\n"])
+  defp add_section(doc, contents), do: push(doc, ["\n\n", to_string(contents), "\n\n"])
 
   defp push(%Q{} = doc, contents), do: Q.push(doc, contents)
   defp push(doc, contents), do: doc |> Q.new() |> Q.push(contents)
