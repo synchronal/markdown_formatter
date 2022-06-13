@@ -15,6 +15,9 @@ defmodule MarkdownFormatter.Renderer do
 
   defmodule Q do
     @moduledoc false
+    # Mostly copied from the `Qex` library. Copied in here rather than used via
+    # `Qex` because 1) Qex is `@opaque` and dialyzer does not like us matching on
+    # `%Qex{}`, and 2) implementing `String.Chars` simplifies things immensely.
 
     @enforce_keys [:q]
     defstruct [:q]
