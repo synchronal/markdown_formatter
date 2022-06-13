@@ -9,8 +9,8 @@ defmodule Test.Case do
   end
 
   def assert_eq(left, right, opts \\ [])
-  def assert_eq(left, right, trim: true), do: assert left == String.trim(right)
-  def assert_eq(left, right, _opts), do: assert left == right
+  def assert_eq(left, right, trim: true), do: assert(left == String.trim(right))
+  def assert_eq(left, right, _opts), do: assert(left == right)
 
   def ok!({:ok, value}), do: value
   def ok!({:ok, value, []}), do: value

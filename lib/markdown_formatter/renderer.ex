@@ -27,7 +27,8 @@ defmodule MarkdownFormatter.Renderer do
     def new(%Q{} = q), do: q
     def new(values), do: __struct__(q: :queue.from_list(List.wrap(values)))
 
-    def push(q, value), do: __struct__(q: :queue.in(value, q.q))
+    def push(%Q{} = q, value), do: __struct__(q: :queue.in(value, q.q))
+    def push(text, value) when is_binary(text), do: new(text) |> push(value)
 
     defimpl Collectable do
       def into(%Q{} = q) do
@@ -108,11 +109,20 @@ defmodule MarkdownFormatter.Renderer do
   defp render({"strong", [], contents, %{}}, doc, opts), do: push(doc, ["**", render(contents, Q.new(), opts), "**"])
 
   # lists
-  defp render({"ol", [], contents, %{}}, doc, opts), do: render(contents, doc, S.prefix(opts, "1. ") |> S.inc())
-  defp render({"ul", [], contents, %{}}, doc, opts), do: render(contents, doc, S.prefix(opts, "- ") |> S.inc())
+  defp render({"ol", [], contents, %{}}, doc, opts),
+    do:
+      contents
+      |> render(doc, S.prefix(opts, "\n1. ") |> S.inc())
+
+  defp render({"ul", [], contents, %{}}, doc, opts),
+    do:
+      contents
+      |> render(doc, S.prefix(opts, "\n- ") |> S.inc())
 
   defp render({"li", [], contents, %{}}, doc, opts),
-    do: push(doc, [opts.prefix, render(contents, Q.new(), S.reset(opts)), "\n"])
+    do:
+      doc
+      |> push([with_depth(opts.prefix, opts.depth - 1), render(contents, Q.new(), S.reset(opts))])
 
   # text node
   defp render([text], @empty_queue, opts) when is_binary(text), do: text |> with_depth(opts.depth)
@@ -132,5 +142,6 @@ defmodule MarkdownFormatter.Renderer do
   defp push(%Q{} = doc, contents), do: Q.push(doc, contents)
   defp push(doc, contents), do: doc |> Q.new() |> Q.push(contents)
 
-  defp with_depth(text, depth), do: text |> String.replace("\n",  "\n" <> String.duplicate(" ", depth * 2))
+  defp with_depth(text, 0), do: text
+  defp with_depth(text, depth), do: text |> String.replace("\n", "\n" <> String.duplicate(" ", depth * 2))
 end

@@ -152,6 +152,28 @@ defmodule MarkdownFormatter.RendererTest do
       )
     end
 
+    test "renders nested lists" do
+      """
+      - a list
+      - item with
+        - nested a nested item
+        - and another
+      - followed by this
+      """
+      |> parse!()
+      |> Renderer.to_markdown()
+      |> assert_eq(
+        """
+        - a list
+        - item with
+          - nested a nested item
+          - and another
+        - followed by this
+        """,
+        trim: true
+      )
+    end
+
     test "renders blockquotes" do
       [{"blockquote", [], [{"p", [], ["I am inset text\nwith multiple lines."], %{}}], %{}}]
       |> Renderer.to_markdown()
