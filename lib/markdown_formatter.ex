@@ -5,7 +5,7 @@ defmodule MarkdownFormatter do
 
   ## Usage
 
-  Add the `MarkdownFormatter` to `.formatter.exs`.
+  Add `MarkdownFormatter` to the `.formatter.exs` plugin list.
 
   ```
   [
