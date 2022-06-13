@@ -7,6 +7,7 @@ defmodule MarkdownFormatter.MixProject do
     [
       app: :markdown_formatter,
       deps: deps(),
+      description: "A mix format plugin for markdown files",
       dialyzer: dialyzer(),
       docs: docs(),
       elixir: "~> 1.13",
