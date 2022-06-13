@@ -151,6 +151,8 @@ jobs:
         with:
           path: _build
           key: ${{ runner.os }}-dev-build-v1-${{ hashFiles('**/mix.lock', '.tool-versions') }}
+      - name: Compile
+        run: mix compile
       - name: Check Elixir formatting
         run: mix format --check-formatted
         working-directory: .
