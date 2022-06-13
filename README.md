@@ -2,7 +2,6 @@
 
 An Elixir formatter for Markdown files and sigils.
 
-
 ## Installation
 
 ```elixir
@@ -18,7 +17,7 @@ end
 Add `MarkdownFormatter` to the `.formatter.exs` plugin list, and add `.md` files
 to the list of inputs.
 
-```
+```elixir
 [
   plugins: [MixMarkdownFormatter],
   inputs: [
