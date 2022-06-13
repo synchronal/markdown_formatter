@@ -7,14 +7,16 @@ defmodule MarkdownFormatter do
 
   Add the `MarkdownFormatter` to `.formatter.exs`.
 
-  ```elixir`
+  ```
   [
-    # Define the desired plugins
     plugins: [MixMarkdownFormatter],
-    # Remember to update the inputs list to include the new extensions
-    inputs: ["{mix,.formatter}.exs", "{config,lib,test}/**/*.{ex,exs}", "posts/*.{md,markdown}"]
+    inputs: [
+      "{mix,.formatter}.exs",
+      "{config,lib,test}/**/*.{ex,exs}",
+      "posts/*.{md,markdown}"
+    ]
   ]
-  ````
+  ```
   """
 
   @behaviour Mix.Tasks.Format
