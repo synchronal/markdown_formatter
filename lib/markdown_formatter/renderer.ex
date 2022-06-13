@@ -104,6 +104,9 @@ defmodule MarkdownFormatter.Renderer do
   defp render({"pre", [], [{"code", [], contents, %{}}], %{}}, doc, _opts),
     do: push(doc, ["```\n", contents, "\n```"])
 
+  defp render({"pre", [], [{"code", [{"class", lang}], contents, %{}}], %{}}, doc, _opts),
+    do: push(doc, ["```", lang, "\n", contents, "\n```"])
+
   # text formatting
   defp render({"em", [], contents, %{}}, doc, opts), do: push(doc, ["*", render(contents, Q.new(), opts), "*"])
   defp render({"strong", [], contents, %{}}, doc, opts), do: push(doc, ["**", render(contents, Q.new(), opts), "**"])

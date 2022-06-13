@@ -107,9 +107,41 @@ defmodule MarkdownFormatter.RendererTest do
     end
 
     test "renders code blocks" do
-      [{"pre", [], [{"code", [], ["some code\nin a block"], %{}}], %{}}]
+      """
+      ```
+      some code
+      in a block
+      ```
+      """
+      |> parse!()
       |> Renderer.to_markdown()
-      |> assert_eq("```\nsome code\nin a block\n```")
+      |> assert_eq(
+        """
+        ```
+        some code
+        in a block
+        ```
+        """,
+        trim: true
+      )
+
+      """
+      ```elixir
+      a = 1
+      b = 2
+      ```
+      """
+      |> parse!()
+      |> Renderer.to_markdown()
+      |> assert_eq(
+        """
+        ```elixir
+        a = 1
+        b = 2
+        ```
+        """,
+        trim: true
+      )
     end
 
     test "renders ordered lists" do
