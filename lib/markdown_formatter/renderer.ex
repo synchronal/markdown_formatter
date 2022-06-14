@@ -98,6 +98,9 @@ defmodule MarkdownFormatter.Renderer do
   defp render({"blockquote", [], contents, %{}}, doc, opts), do: render(contents, doc, S.prefix(opts, "> "))
 
   # links
+  defp render({"a", [{"href", path}], [path], %{}}, doc, _opts),
+    do: push(doc, [path])
+
   defp render({"a", [{"href", path}], contents, %{}}, doc, opts),
     do: push(doc, ["[#{render(contents, Q.new(), S.reset(opts))}](#{path})"])
 

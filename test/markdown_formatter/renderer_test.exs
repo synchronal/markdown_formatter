@@ -83,9 +83,17 @@ defmodule MarkdownFormatter.RendererTest do
     end
 
     test "renders links" do
-      [{"a", [{"href", "path/to/file.md"}], ["I am a link"], %{}}]
+      "[I am a link](path/to/file.md)"
+      |> parse!()
       |> Renderer.to_markdown()
       |> assert_eq("[I am a link](path/to/file.md)")
+    end
+
+    test "renders simple links" do
+      "http://example.com/path"
+      |> parse!()
+      |> Renderer.to_markdown()
+      |> assert_eq("http://example.com/path")
     end
 
     test "renders inline code fragments" do
