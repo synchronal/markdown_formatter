@@ -144,6 +144,28 @@ defmodule MarkdownFormatter.RendererTest do
       )
     end
 
+    test "renders code blocks directly after headers" do
+      """
+      # Header
+
+      ```elixir
+      a = b
+      ```
+      """
+      |> parse!()
+      |> Renderer.to_markdown()
+      |> assert_eq(
+        """
+        # Header
+
+        ```elixir
+        a = b
+        ```
+        """,
+        trim: true
+      )
+    end
+
     test "renders ordered lists" do
       [
         {"ol", [],

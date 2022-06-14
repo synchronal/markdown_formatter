@@ -5,12 +5,13 @@ defmodule MarkdownFormatter.Renderer do
   defmodule RenderState do
     @moduledoc false
 
-    defstruct depth: 0, prefix: ""
+    defstruct depth: 0, parent: nil, prefix: ""
 
     def new, do: __struct__()
     def inc(state), do: %{state | depth: state.depth + 1}
+    def parent(state, parent), do: %{state | parent: parent}
     def prefix(state, prefix), do: %{state | prefix: prefix}
-    def reset(state), do: %{state | prefix: ""}
+    def reset(state), do: %{state | parent: nil, prefix: ""}
   end
 
   defmodule Q do
@@ -91,7 +92,7 @@ defmodule MarkdownFormatter.Renderer do
 
   # paragraph tag
   defp render({"p", [], contents, %{}}, doc, opts),
-    do: add_section(doc, render(contents, Q.new([opts.prefix]), S.reset(opts)))
+    do: add_section(doc, render(contents, Q.new([opts.prefix]), S.reset(opts) |> S.parent(:p)))
 
   # blockquote
   defp render({"blockquote", [], contents, %{}}, doc, opts), do: render(contents, doc, S.prefix(opts, "> "))
@@ -104,11 +105,11 @@ defmodule MarkdownFormatter.Renderer do
   defp render({"code", [{"class", "inline"}], contents, %{}}, doc, _opts),
     do: push(doc, ["`", contents, "`"])
 
-  defp render({"pre", [], [{"code", [], contents, %{}}], %{}}, doc, _opts),
-    do: push(doc, ["```\n", contents, "\n```"])
+  defp render({"pre", [], [{"code", attrs, contents, %{}}], %{}}, doc, %{parent: :p}),
+    do: push(doc, ["```", class(attrs), "\n", contents, "\n```"])
 
-  defp render({"pre", [], [{"code", [{"class", lang}], contents, %{}}], %{}}, doc, _opts),
-    do: push(doc, ["```", lang, "\n", contents, "\n```"])
+  defp render({"pre", [], [{"code", attrs, contents, %{}}], %{}}, doc, _opts),
+    do: add_section(doc, ["```", class(attrs), "\n", contents, "\n```"])
 
   # text formatting
   defp render({"em", [], contents, %{}}, doc, opts), do: push(doc, ["*", render(contents, Q.new(), opts), "*"])
@@ -141,6 +142,9 @@ defmodule MarkdownFormatter.Renderer do
   defp render([head | tail], doc, opts), do: render(tail, render(head, doc, opts), opts)
 
   # # #
+
+  defp class([]), do: ""
+  defp class([{"class", class}]), do: class
 
   defp add_section(@empty_queue, contents), do: contents
   defp add_section(doc, contents), do: push(doc, ["\n\n", to_string(contents), "\n\n"])
