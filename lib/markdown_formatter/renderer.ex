@@ -119,15 +119,14 @@ defmodule MarkdownFormatter.Renderer do
   defp render({"strong", [], contents, %{}}, doc, opts), do: push(doc, ["**", render(contents, Q.new(), opts), "**"])
 
   # lists
-  defp render({"ol", [], contents, %{}}, doc, opts),
-    do:
-      contents
-      |> render(doc, S.prefix(opts, "\n1. ") |> S.inc())
+  defp render({"ol", [], contents, %{}}, doc, %{parent: nil} = opts),
+    do: add_section(doc, with_prefix(Q.new(), contents, "\n1. ", S.reset(opts)))
 
-  defp render({"ul", [], contents, %{}}, doc, opts),
-    do:
-      contents
-      |> render(doc, S.prefix(opts, "\n- ") |> S.inc())
+  defp render({"ul", [], contents, %{}}, doc, %{parent: nil} = opts),
+    do: add_section(doc, with_prefix(Q.new(), contents, "\n- ", S.reset(opts)))
+
+  defp render({"ol", [], contents, %{}}, doc, opts), do: with_prefix(doc, contents, "\n1. ", S.reset(opts))
+  defp render({"ul", [], contents, %{}}, doc, opts), do: with_prefix(doc, contents, "\n- ", S.reset(opts))
 
   defp render({"li", [], contents, %{}}, doc, opts),
     do:
@@ -149,7 +148,7 @@ defmodule MarkdownFormatter.Renderer do
   defp class([]), do: ""
   defp class([{"class", class}]), do: class
 
-  defp add_section(@empty_queue, contents), do: contents
+  defp add_section(@empty_queue, contents), do: to_string(contents)
   defp add_section(doc, contents), do: push(doc, ["\n\n", to_string(contents), "\n\n"])
 
   defp push(%Q{} = doc, contents), do: Q.push(doc, contents)
@@ -157,4 +156,7 @@ defmodule MarkdownFormatter.Renderer do
 
   defp with_depth(text, 0), do: text
   defp with_depth(text, depth), do: text |> String.replace("\n", "\n" <> String.duplicate(" ", depth * 2))
+
+  defp with_prefix(doc, contents, prefix, opts),
+    do: contents |> render(doc, S.prefix(opts, prefix) |> S.inc())
 end

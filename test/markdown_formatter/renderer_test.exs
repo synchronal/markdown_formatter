@@ -20,50 +20,6 @@ defmodule MarkdownFormatter.RendererTest do
       |> assert_eq("text")
     end
 
-    test "concatenates items with \\n\\n" do
-      """
-      # header
-
-      some content [with a link](/path/to/file.txt).
-
-      and some other text
-
-      * Unordered list
-      * With elements
-
-      > Some block quote text
-      that wraps lines.
-
-      1. Ordered list
-      2. With elements
-
-      ## subheader
-      """
-      |> parse!()
-      |> Renderer.to_markdown()
-      |> assert_eq(
-        """
-        # header
-
-        some content [with a link](/path/to/file.txt).
-
-        and some other text
-
-        - Unordered list
-        - With elements
-
-        > Some block quote text
-        that wraps lines.
-
-        1. Ordered list
-        1. With elements
-
-        ## subheader
-        """,
-        trim: true
-      )
-    end
-
     test "renders italic" do
       [{"em", [], ["italicized content"], %{}}]
       |> Renderer.to_markdown()
@@ -240,6 +196,72 @@ defmodule MarkdownFormatter.RendererTest do
       |> parse!()
       |> Renderer.to_markdown()
       |> assert_eq("> I am inset text\nwith multiple lines.")
+    end
+  end
+
+  describe "to_markdown documents" do
+    test "concatenates sections with \\n\\n" do
+      """
+      # header
+
+      some content [with a link](/path/to/file.txt).
+
+      and some other text
+
+      * Unordered list
+      * With elements
+
+      > Some block quote text
+      that wraps lines.
+
+      1. Ordered list
+      2. With elements
+
+      ## subheader
+      """
+      |> parse!()
+      |> Renderer.to_markdown()
+      |> assert_eq(
+        """
+        # header
+
+        some content [with a link](/path/to/file.txt).
+
+        and some other text
+
+        - Unordered list
+        - With elements
+
+        > Some block quote text
+        that wraps lines.
+
+        1. Ordered list
+        1. With elements
+
+        ## subheader
+        """,
+        trim: true
+      )
+    end
+
+    test "handles spacing between paragraphs and lists" do
+      """
+      some text in a paragraph
+
+      - text in a list
+      - text in a list
+      """
+      |> parse!()
+      |> Renderer.to_markdown()
+      |> assert_eq(
+        """
+        some text in a paragraph
+
+        - text in a list
+        - text in a list
+        """,
+        trim: true
+      )
     end
   end
 end
