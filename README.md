@@ -14,8 +14,8 @@ end
 
 ## Usage
 
-Add `MarkdownFormatter` to the `.formatter.exs` plugin list, and add `.md` files
-to the list of inputs.
+Add `MarkdownFormatter` to the `.formatter.exs` plugin list, and add `.md` files to the list of
+inputs.
 
 ```elixir
 [
