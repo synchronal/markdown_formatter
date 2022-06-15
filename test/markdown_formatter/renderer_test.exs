@@ -175,25 +175,21 @@ defmodule MarkdownFormatter.RendererTest do
     end
 
     test "renders ordered lists" do
-      [
-        {"ol", [],
-         [
-           {"li", [], ["first item"], %{}},
-           {"li", [], ["second item"], %{}}
-         ], %{}}
-      ]
+      """
+      1. first item
+      2. second item
+      """
+      |> parse!()
       |> Renderer.to_markdown()
       |> assert_eq("1. first item\n1. second item")
     end
 
     test "renders unordered lists" do
-      [
-        {"ul", [],
-         [
-           {"li", [], ["first item"], %{}},
-           {"li", [], ["second item"], %{}}
-         ], %{}}
-      ]
+      """
+      * first item
+      * second item
+      """
+      |> parse!()
       |> Renderer.to_markdown()
       |> assert_eq("- first item\n- second item")
     end
@@ -237,7 +233,11 @@ defmodule MarkdownFormatter.RendererTest do
     end
 
     test "renders blockquotes" do
-      [{"blockquote", [], [{"p", [], ["I am inset text\nwith multiple lines."], %{}}], %{}}]
+      """
+      > I am inset text
+      with multiple lines.
+      """
+      |> parse!()
       |> Renderer.to_markdown()
       |> assert_eq("> I am inset text\nwith multiple lines.")
     end
