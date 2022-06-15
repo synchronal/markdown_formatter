@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Add `line_length` text reformatting (default 100 characters).
+- Fix: sometimes spacing between block elements and lists would collapse.
+
 ## 0.1.2
 
 - Render links inline when the text is the same as the path.
