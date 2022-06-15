@@ -5,13 +5,13 @@ defmodule MarkdownFormatter.Renderer do
   defmodule RenderState do
     @moduledoc false
 
-    defstruct depth: 0, parent: nil, prefix: ""
+    defstruct depth: 0, line_length: 100, parent: nil, prefix: ""
 
-    def new, do: __struct__()
+    def new(attrs \\ []), do: __struct__(attrs)
     def inc(state), do: %{state | depth: state.depth + 1}
     def parent(state, parent), do: %{state | parent: parent}
     def prefix(state, prefix), do: %{state | prefix: prefix}
-    def reset(state), do: %{state | parent: nil, prefix: ""}
+    def reset(state, parent \\ nil), do: %{state | parent: parent, prefix: ""}
   end
 
   defmodule Q do
@@ -70,11 +70,12 @@ defmodule MarkdownFormatter.Renderer do
   @empty_queue Q.new()
 
   @doc "Given AST produced from Earmark, turn it back into Markdown."
-  @spec to_markdown(Earmark.ast()) :: binary()
-  def to_markdown(ast) when is_list(ast) do
+  @spec to_markdown(Earmark.ast(), keyword()) :: binary()
+  def to_markdown(ast, opts \\ []) when is_list(ast) do
+    opts = Keyword.take(opts, [:line_length])
+
     ast
-    |> render(Q.new(), S.new())
-    |> to_string()
+    |> render(Q.new(), S.new(opts))
     |> String.trim()
     |> String.replace(~r|\n\n\n*|, "\n\n")
   end
@@ -120,24 +121,24 @@ defmodule MarkdownFormatter.Renderer do
 
   # lists
   defp render({"ol", [], contents, %{}}, doc, %{parent: nil} = opts),
-    do: add_section(doc, with_prefix(Q.new(), contents, "\n1. ", S.reset(opts)))
+    do: add_section(doc, with_prefix(Q.new(), contents, "\n1. ", S.reset(opts, :ol)))
 
   defp render({"ul", [], contents, %{}}, doc, %{parent: nil} = opts),
-    do: add_section(doc, with_prefix(Q.new(), contents, "\n- ", S.reset(opts)))
+    do: add_section(doc, with_prefix(Q.new(), contents, "\n- ", S.reset(opts, :ul)))
 
-  defp render({"ol", [], contents, %{}}, doc, opts), do: with_prefix(doc, contents, "\n1. ", S.reset(opts))
-  defp render({"ul", [], contents, %{}}, doc, opts), do: with_prefix(doc, contents, "\n- ", S.reset(opts))
+  defp render({"ol", [], contents, %{}}, doc, opts), do: with_prefix(doc, contents, "\n1. ", S.reset(opts, :ol))
+  defp render({"ul", [], contents, %{}}, doc, opts), do: with_prefix(doc, contents, "\n- ", S.reset(opts, :ul))
 
   defp render({"li", [], contents, %{}}, doc, opts),
     do:
       doc
-      |> push([with_depth(opts.prefix, opts.depth - 1), render(contents, Q.new(), S.reset(opts))])
+      |> push([with_depth(opts.prefix, opts.depth - 1), render(contents, Q.new(), opts)])
 
   # text node
-  defp render([text], @empty_queue, opts) when is_binary(text), do: text |> with_depth(opts.depth)
-  defp render(text, @empty_queue, opts) when is_binary(text), do: text |> with_depth(opts.depth)
-  defp render([text], doc, _opts) when is_binary(text), do: push(doc, text) |> to_string()
-  defp render(text, doc, _opts) when is_binary(text), do: push(doc, text) |> to_string()
+  defp render([text], @empty_queue, opts) when is_binary(text), do: text |> reformat(opts)
+  defp render(text, @empty_queue, opts) when is_binary(text), do: text |> reformat(opts)
+  defp render([text], doc, opts) when is_binary(text), do: push(doc, text) |> to_string() |> reformat(opts)
+  defp render(text, doc, opts) when is_binary(text), do: push(doc, text) |> to_string() |> reformat(opts)
 
   # handle next element
   defp render([head], doc, opts), do: render(head, doc, opts) |> to_string()
@@ -148,11 +149,35 @@ defmodule MarkdownFormatter.Renderer do
   defp class([]), do: ""
   defp class([{"class", class}]), do: class
 
-  defp add_section(@empty_queue, contents), do: to_string(contents)
+  defp add_section(@empty_queue, contents), do: contents
   defp add_section(doc, contents), do: push(doc, ["\n\n", to_string(contents), "\n\n"])
 
   defp push(%Q{} = doc, contents), do: Q.push(doc, contents)
   defp push(doc, contents), do: doc |> Q.new() |> Q.push(contents)
+
+  defp reformat(text, opts) do
+    text
+    |> String.replace(~r|(?<!\n)\n|, " ")
+    |> String.split(~r|\s+|)
+    |> Enum.reduce([], fn
+      word, [] ->
+        [word]
+
+      word, [last | acc] ->
+        joined = [last, word] |> Enum.join(" ")
+
+        if String.length(joined) > opts.line_length do
+          [line, fragment] = String.split(joined, ~r/\s(?!.*\s)/)
+
+          [fragment, line | acc]
+        else
+          [joined | acc]
+        end
+    end)
+    |> Enum.reverse()
+    |> Enum.join("\n")
+    |> with_depth(opts.depth)
+  end
 
   defp with_depth(text, 0), do: text
   defp with_depth(text, depth), do: text |> String.replace("\n", "\n" <> String.duplicate(" ", depth * 2))

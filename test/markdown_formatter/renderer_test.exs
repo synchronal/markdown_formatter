@@ -150,7 +150,7 @@ defmodule MarkdownFormatter.RendererTest do
       |> assert_eq("- first item\n- second item")
     end
 
-    test "renders nested text under list items" do
+    test "formats nested text under list items" do
       """
       - item with
         nested text.
@@ -159,8 +159,7 @@ defmodule MarkdownFormatter.RendererTest do
       |> Renderer.to_markdown()
       |> assert_eq(
         """
-        - item with
-          nested text.
+        - item with nested text.
         """,
         trim: true
       )
@@ -191,11 +190,43 @@ defmodule MarkdownFormatter.RendererTest do
     test "renders blockquotes" do
       """
       > I am inset text
-      with multiple lines.
+      that started with multiple lines.
       """
       |> parse!()
       |> Renderer.to_markdown()
-      |> assert_eq("> I am inset text\nwith multiple lines.")
+      |> assert_eq("> I am inset text that started with multiple lines.")
+    end
+
+    test "changes line length in text" do
+      html =
+        """
+        I am a paragraph
+        block with text split across multiple lines
+        that came in with strange spacing.
+
+        - I am
+          a list with
+          text that should wrap across multiple lines.
+          - I am
+            a nested list with
+            text that should wrap across multiple lines.
+        """
+        |> parse!()
+
+      html
+      |> Renderer.to_markdown(line_length: 50)
+      |> assert_eq(
+        """
+        I am a paragraph block with text split across
+        multiple lines that came in with strange spacing.
+
+        - I am a list with text that should wrap across
+          multiple lines.
+          - I am a nested list with text that should wrap
+            across multiple lines.
+        """,
+        trim: true
+      )
     end
   end
 
@@ -232,8 +263,7 @@ defmodule MarkdownFormatter.RendererTest do
         - Unordered list
         - With elements
 
-        > Some block quote text
-        that wraps lines.
+        > Some block quote text that wraps lines.
 
         1. Ordered list
         1. With elements
