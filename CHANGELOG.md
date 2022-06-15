@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.2.0
+
 - Add `line_length` text reformatting (default 100 characters).
 - Fix: sometimes spacing between block elements and lists would collapse.
 
