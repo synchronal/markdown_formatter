@@ -27,3 +27,19 @@ inputs.
   ]
 ]
 ```
+
+Configure with a `:markdown` section:
+
+```elixir
+[
+  plugins: [MixMarkdownFormatter],
+  markdown: [
+    line_length: 120
+  ],
+  inputs: [
+    "{mix,.formatter}.exs",
+    "{config,lib,test}/**/*.{ex,exs}",
+    "posts/*.{md,markdown}"
+  ]
+]
+```
