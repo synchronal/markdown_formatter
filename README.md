@@ -12,6 +12,8 @@ def deps do
 end
 ```
 
+Run `mix dep.get` and `mix deps.compile`, or the module will not be available to the formatter.
+
 ## Usage
 
 Add `MarkdownFormatter` to the `.formatter.exs` plugin list, and add `.md` files to the list of
@@ -19,7 +21,7 @@ inputs.
 
 ```elixir
 [
-  plugins: [MixMarkdownFormatter],
+  plugins: [MarkdownFormatter],
   inputs: [
     "{mix,.formatter}.exs",
     "{config,lib,test}/**/*.{ex,exs}",
@@ -32,7 +34,7 @@ Configure with a `:markdown` section:
 
 ```elixir
 [
-  plugins: [MixMarkdownFormatter],
+  plugins: [MarkdownFormatter],
   markdown: [
     line_length: 120
   ],

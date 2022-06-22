@@ -9,7 +9,7 @@ defmodule MarkdownFormatter do
 
   ```
   [
-    plugins: [MixMarkdownFormatter],
+    plugins: [MarkdownFormatter],
     inputs: [
       "{mix,.formatter}.exs",
       "{config,lib,test}/**/*.{ex,exs}",
@@ -27,7 +27,7 @@ defmodule MarkdownFormatter do
 
   ```
   [
-    plugins: [MixMarkdownFormatter],
+    plugins: [MarkdownFormatter],
     markdown: [
       line_length: 80
     ],
