@@ -79,15 +79,12 @@ defmodule MarkdownFormatter.RendererTest do
       """
       |> parse!()
       |> Renderer.to_markdown()
-      |> assert_eq(
-        """
-        ```
-        some code
-        in a block
-        ```
-        """,
-        trim: true
-      )
+      |> assert_eq("""
+      ```
+      some code
+      in a block
+      ```
+      """)
 
       """
       ```elixir
@@ -97,15 +94,12 @@ defmodule MarkdownFormatter.RendererTest do
       """
       |> parse!()
       |> Renderer.to_markdown()
-      |> assert_eq(
-        """
-        ```elixir
-        a = 1
-        b = 2
-        ```
-        """,
-        trim: true
-      )
+      |> assert_eq("""
+      ```elixir
+      a = 1
+      b = 2
+      ```
+      """)
     end
 
     test "renders code blocks directly after headers" do
@@ -118,16 +112,13 @@ defmodule MarkdownFormatter.RendererTest do
       """
       |> parse!()
       |> Renderer.to_markdown()
-      |> assert_eq(
-        """
-        # Header
+      |> assert_eq("""
+      # Header
 
-        ```elixir
-        a = b
-        ```
-        """,
-        trim: true
-      )
+      ```elixir
+      a = b
+      ```
+      """)
     end
 
     test "renders ordered lists" do
@@ -137,7 +128,10 @@ defmodule MarkdownFormatter.RendererTest do
       """
       |> parse!()
       |> Renderer.to_markdown()
-      |> assert_eq("1. first item\n1. second item")
+      |> assert_eq("""
+      1. first item
+      1. second item
+      """)
     end
 
     test "renders unordered lists" do
@@ -147,7 +141,10 @@ defmodule MarkdownFormatter.RendererTest do
       """
       |> parse!()
       |> Renderer.to_markdown()
-      |> assert_eq("- first item\n- second item")
+      |> assert_eq("""
+      - first item
+      - second item
+      """)
     end
 
     test "formats nested text under list items" do
@@ -157,12 +154,7 @@ defmodule MarkdownFormatter.RendererTest do
       """
       |> parse!()
       |> Renderer.to_markdown()
-      |> assert_eq(
-        """
-        - item with nested text.
-        """,
-        trim: true
-      )
+      |> assert_eq("- item with nested text.")
     end
 
     test "renders nested lists" do
@@ -175,16 +167,13 @@ defmodule MarkdownFormatter.RendererTest do
       """
       |> parse!()
       |> Renderer.to_markdown()
-      |> assert_eq(
-        """
-        - a list
-        - item with
-          - nested a nested item
-          - and another
-        - followed by this
-        """,
-        trim: true
-      )
+      |> assert_eq("""
+      - a list
+      - item with
+        - nested a nested item
+        - and another
+      - followed by this
+      """)
     end
 
     test "renders blockquotes" do
@@ -220,26 +209,23 @@ defmodule MarkdownFormatter.RendererTest do
       """
       |> parse!()
       |> Renderer.to_markdown()
-      |> assert_eq(
-        """
-        # header
+      |> assert_eq("""
+      # header
 
-        some content [with a link](/path/to/file.txt).
+      some content [with a link](/path/to/file.txt).
 
-        and some other text
+      and some other text
 
-        - Unordered list
-        - With elements
+      - Unordered list
+      - With elements
 
-        > Some block quote text that wraps lines.
+      > Some block quote text that wraps lines.
 
-        1. Ordered list
-        1. With elements
+      1. Ordered list
+      1. With elements
 
-        ## subheader
-        """,
-        trim: true
-      )
+      ## subheader
+      """)
     end
 
     test "handles spacing between paragraphs and lists" do
@@ -251,15 +237,12 @@ defmodule MarkdownFormatter.RendererTest do
       """
       |> parse!()
       |> Renderer.to_markdown()
-      |> assert_eq(
-        """
-        some text in a paragraph
+      |> assert_eq("""
+      some text in a paragraph
 
-        - text in a list
-        - text in a list
-        """,
-        trim: true
-      )
+      - text in a list
+      - text in a list
+      """)
     end
 
     test "changes line length in text" do
@@ -292,26 +275,23 @@ defmodule MarkdownFormatter.RendererTest do
 
       html
       |> Renderer.to_markdown(line_length: 50)
-      |> assert_eq(
-        """
-        I am a paragraph block with text split across
-        multiple lines that came in with strange spacing.
+      |> assert_eq("""
+      I am a paragraph block with text split across
+      multiple lines that came in with strange spacing.
 
-        - I am a list with text that should wrap across
-          multiple lines.
-          - I am a nested list with text that should wrap
-            across multiple lines.
+      - I am a list with text that should wrap across
+        multiple lines.
+        - I am a nested list with text that should wrap
+          across multiple lines.
 
-        1. I am an ordered list
-          1. With nesting
-          1. And items with nested things.
-        1. I have multiple items.
+      1. I am an ordered list
+        1. With nesting
+        1. And items with nested things.
+      1. I have multiple items.
 
-        > Blockquotes with long text work also, it's so
-        cool.
-        """,
-        trim: true
-      )
+      > Blockquotes with long text work also, it's so
+      cool.
+      """)
     end
   end
 end

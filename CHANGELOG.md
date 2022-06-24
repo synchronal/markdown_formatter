@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Multi-line markdown documents are formatted with a trailing newline.
+
 ## 0.2.0
 
 - Add `line_length` text reformatting (default 100 characters).

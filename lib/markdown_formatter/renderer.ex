@@ -78,6 +78,7 @@ defmodule MarkdownFormatter.Renderer do
     |> render(Q.new(), S.new(opts))
     |> String.trim()
     |> String.replace(~r|\n\n\n*|, "\n\n")
+    |> ensure_final_newline()
   end
 
   # end recursion
@@ -151,6 +152,12 @@ defmodule MarkdownFormatter.Renderer do
 
   defp add_section(@empty_queue, contents), do: contents
   defp add_section(doc, contents), do: push(doc, ["\n\n", to_string(contents), "\n\n"])
+
+  defp ensure_final_newline(string) do
+    if String.contains?(string, "\n"),
+      do: string <> "\n",
+      else: string
+  end
 
   defp push(%Q{} = doc, contents), do: Q.push(doc, contents)
   defp push(doc, contents), do: doc |> Q.new() |> Q.push(contents)
