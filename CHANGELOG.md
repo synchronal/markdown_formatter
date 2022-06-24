@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.3.0
+
 - Multi-line markdown documents are formatted with a trailing newline.
 
 ## 0.2.0
