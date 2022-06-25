@@ -73,7 +73,7 @@ defmodule MarkdownFormatter.Renderer do
   @empty_queue Q.new()
 
   @doc "Given AST produced from Earmark, turn it back into Markdown."
-  @spec to_markdown(Earmark.ast(), keyword()) :: binary()
+  @spec to_markdown(EarmarkParser.ast(), keyword()) :: binary()
   def to_markdown(ast, opts \\ []) when is_list(ast) do
     opts = Keyword.take(opts, [:line_length])
 
