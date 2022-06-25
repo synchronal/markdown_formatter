@@ -12,6 +12,8 @@ defmodule MarkdownFormatter.MixProject do
       docs: docs(),
       elixir: "~> 1.13",
       elixirc_paths: elixirc_paths(Mix.env()),
+      homepage_url: @scm_url,
+      name: "MarkdownFormatter",
       package: package(),
       preferred_cli_env: [credo: :test, dialyzer: :test],
       source_url: @scm_url,
@@ -45,7 +47,7 @@ defmodule MarkdownFormatter.MixProject do
         "CHANGELOG.md",
         "LICENSE.md"
       ],
-      main: "MarkdownFormatter"
+      main: "readme"
     ]
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]
@@ -55,9 +57,10 @@ defmodule MarkdownFormatter.MixProject do
     do: [
       files: ~w[
         .formatter.exs
+        CHANGELOG.*
+        LICENSE.*
         README.*
         lib
-        LICENSE.*
         mix.exs
       ],
       licenses: ["Apache-2.0"],
