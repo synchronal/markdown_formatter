@@ -40,8 +40,12 @@ defmodule MarkdownFormatter.MixProject do
 
   defp docs,
     do: [
-      main: "MarkdownFormatter",
-      extras: ["README.md", "LICENSE.md"]
+      extras: [
+        "README.md",
+        "CHANGELOG.md",
+        "LICENSE.md"
+      ],
+      main: "MarkdownFormatter"
     ]
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]
@@ -57,6 +61,10 @@ defmodule MarkdownFormatter.MixProject do
         mix.exs
       ],
       licenses: ["Apache-2.0"],
+      links: %{
+        "GitHub" => @scm_url,
+        "Change Log" => "https://hexdocs.pm/markdown_formatter/changelog.html"
+      },
       maintainers: ["synchronal.dev", "Eric Saxby"],
       links: %{github: @scm_url}
     ]
