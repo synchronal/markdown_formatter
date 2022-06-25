@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.1
+
+- Fixup docs.
+- Unlock `earmark`; only `earmark_parser` is used.
+
 ## 0.4.0
 
 - Add change log to docs.

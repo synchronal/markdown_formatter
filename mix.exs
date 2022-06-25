@@ -18,7 +18,7 @@ defmodule MarkdownFormatter.MixProject do
       preferred_cli_env: [credo: :test, dialyzer: :test],
       source_url: @scm_url,
       start_permanent: Mix.env() == :prod,
-      version: "0.4.0"
+      version: "0.4.1"
     ]
   end
 
