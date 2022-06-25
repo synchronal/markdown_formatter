@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.4.0
 
 - Add change log to docs.
 - Handle `ex_doc`-style [admonition blocks](https://hexdocs.pm/ex_doc/readme.html#admonition-blocks).

@@ -7,7 +7,7 @@ An Elixir formatter for Markdown files and sigils.
 ```elixir
 def deps do
   [
-    {:markdown_formatter, "~> 0.3", only: :dev, runtime: false}
+    {:markdown_formatter, "~> 0.4", only: :dev, runtime: false}
   ]
 end
 ```
