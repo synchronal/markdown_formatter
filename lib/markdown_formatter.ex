@@ -1,4 +1,5 @@
 defmodule MarkdownFormatter do
+  # @related [test](/test/markdown_formatter_test.exs)
   @moduledoc """
   A formatter that can be plugged in to `mix format` in order to format Markdown
   files and sigils.
