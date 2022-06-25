@@ -185,6 +185,21 @@ defmodule MarkdownFormatter.RendererTest do
       |> Renderer.to_markdown()
       |> assert_eq("> I am inset text that started with multiple lines.")
     end
+
+    test "renders warning and error admonition blocks" do
+      """
+      > #### I am a warning {: .warning}
+      >
+      > You should read me.
+      """
+      |> parse!()
+      |> Renderer.to_markdown()
+      |> assert_eq("""
+      > #### I am a warning {: .warning}
+      >
+      > You should read me.
+      """)
+    end
   end
 
   describe "to_markdown documents" do
@@ -259,6 +274,12 @@ defmodule MarkdownFormatter.RendererTest do
             a nested list with
             text that should wrap across multiple lines.
 
+        > #### I am an admonition {: .warning}
+        >
+        > There is some extra
+        > information you
+        > should be aware of.
+
         1. I am an
            ordered list
            1. With nesting
@@ -268,8 +289,8 @@ defmodule MarkdownFormatter.RendererTest do
            items.
 
         > Blockquotes with long text
-          work
-          also, it's so cool.
+        > work
+        > also, it's so cool.
         """
         |> parse!()
 
@@ -284,13 +305,18 @@ defmodule MarkdownFormatter.RendererTest do
         - I am a nested list with text that should wrap
           across multiple lines.
 
+      > #### I am an admonition {: .warning}
+      >
+      > There is some extra information you should be
+      > aware of.
+
       1. I am an ordered list
         1. With nesting
         1. And items with nested things.
       1. I have multiple items.
 
       > Blockquotes with long text work also, it's so
-      cool.
+      > cool.
       """)
     end
   end

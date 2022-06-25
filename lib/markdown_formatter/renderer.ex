@@ -5,9 +5,12 @@ defmodule MarkdownFormatter.Renderer do
   defmodule RenderState do
     @moduledoc false
 
-    defstruct depth: 0, line_length: 100, parent: nil, prefix: ""
+    defstruct class: nil, depth: 0, line_length: 100, parent: nil, prefix: ""
 
     def new(attrs \\ []), do: __struct__(attrs)
+
+    def class(state, [{"class", class}]), do: %{state | class: class}
+    def class(state, _), do: %{state | class: nil}
     def inc(state), do: %{state | depth: state.depth + 1}
     def parent(state, parent), do: %{state | parent: parent}
     def prefix(state, prefix), do: %{state | prefix: prefix}
@@ -84,20 +87,36 @@ defmodule MarkdownFormatter.Renderer do
   # end recursion
   defp render([], doc, _opts), do: doc
 
+  defp render(contents, doc, %{class: class} = opts) when not is_nil(class) do
+    [render(contents, doc, S.class(opts, nil)), " {: .#{class}}"]
+  end
+
   # headers
-  defp render({"h1", [], contents, %{}}, doc, opts), do: add_section(doc, ["# #{render(contents, Q.new(), opts)}"])
-  defp render({"h2", [], contents, %{}}, doc, opts), do: add_section(doc, ["## #{render(contents, Q.new(), opts)}"])
-  defp render({"h3", [], contents, %{}}, doc, opts), do: add_section(doc, ["### #{render(contents, Q.new(), opts)}"])
-  defp render({"h4", [], contents, %{}}, doc, opts), do: add_section(doc, ["#### #{render(contents, Q.new(), opts)}"])
-  defp render({"h5", [], contents, %{}}, doc, opts), do: add_section(doc, ["##### #{render(contents, Q.new(), opts)}"])
-  defp render({"h6", [], contents, %{}}, doc, opts), do: add_section(doc, ["###### #{render(contents, Q.new(), opts)}"])
+  defp render({"h1", attrs, contents, %{}}, doc, opts),
+    do: add_section(doc, prepend_prefix(["# #{render(contents, Q.new(), S.class(opts, attrs))}"], opts), opts)
+
+  defp render({"h2", attrs, contents, %{}}, doc, opts),
+    do: add_section(doc, prepend_prefix(["## #{render(contents, Q.new(), S.class(opts, attrs))}"], opts), opts)
+
+  defp render({"h3", attrs, contents, %{}}, doc, opts),
+    do: add_section(doc, prepend_prefix(["### #{render(contents, Q.new(), S.class(opts, attrs))}"], opts), opts)
+
+  defp render({"h4", attrs, contents, %{}}, doc, opts),
+    do: add_section(doc, prepend_prefix(["#### #{render(contents, Q.new(), S.class(opts, attrs))}"], opts), opts)
+
+  defp render({"h5", attrs, contents, %{}}, doc, opts),
+    do: add_section(doc, prepend_prefix(["##### #{render(contents, Q.new(), S.class(opts, attrs))}"], opts), opts)
+
+  defp render({"h6", attrs, contents, %{}}, doc, opts),
+    do: add_section(doc, prepend_prefix(["###### #{render(contents, Q.new(), S.class(opts, attrs))}"], opts), opts)
 
   # paragraph tag
   defp render({"p", [], contents, %{}}, doc, opts),
-    do: add_section(doc, render(contents, Q.new([opts.prefix]), S.reset(opts) |> S.parent(:p)))
+    do: add_section(doc, prepend_prefix(render(contents, Q.new(), S.reset(opts) |> S.parent(:p)), opts), opts)
 
   # blockquote
-  defp render({"blockquote", [], contents, %{}}, doc, opts), do: render(contents, doc, S.prefix(opts, "> "))
+  defp render({"blockquote", [], contents, %{}}, doc, opts),
+    do: add_section(doc, render(contents, Q.new(), S.parent(opts, :blockquote) |> S.prefix("> ")), opts)
 
   # links
   defp render({"a", [{"href", path}], [path], %{}}, doc, _opts),
@@ -113,8 +132,8 @@ defmodule MarkdownFormatter.Renderer do
   defp render({"pre", [], [{"code", attrs, contents, %{}}], %{}}, doc, %{parent: :p}),
     do: push(doc, ["```", class(attrs), "\n", contents, "\n```"])
 
-  defp render({"pre", [], [{"code", attrs, contents, %{}}], %{}}, doc, _opts),
-    do: add_section(doc, ["```", class(attrs), "\n", contents, "\n```"])
+  defp render({"pre", [], [{"code", attrs, contents, %{}}], %{}}, doc, opts),
+    do: add_section(doc, ["```", class(attrs), "\n", contents, "\n```"], opts)
 
   # text formatting
   defp render({"em", [], contents, %{}}, doc, opts), do: push(doc, ["*", render(contents, Q.new(), opts), "*"])
@@ -122,10 +141,10 @@ defmodule MarkdownFormatter.Renderer do
 
   # lists
   defp render({"ol", [], contents, %{}}, doc, %{parent: nil} = opts),
-    do: add_section(doc, with_prefix(Q.new(), contents, "\n1. ", S.reset(opts, :ol)))
+    do: add_section(doc, with_prefix(Q.new(), contents, "\n1. ", S.reset(opts, :ol)), opts)
 
   defp render({"ul", [], contents, %{}}, doc, %{parent: nil} = opts),
-    do: add_section(doc, with_prefix(Q.new(), contents, "\n- ", S.reset(opts, :ul)))
+    do: add_section(doc, with_prefix(Q.new(), contents, "\n- ", S.reset(opts, :ul)), opts)
 
   defp render({"ol", [], contents, %{}}, doc, opts), do: with_prefix(doc, contents, "\n1. ", S.reset(opts, :ol))
   defp render({"ul", [], contents, %{}}, doc, opts), do: with_prefix(doc, contents, "\n- ", S.reset(opts, :ul))
@@ -150,8 +169,18 @@ defmodule MarkdownFormatter.Renderer do
   defp class([]), do: ""
   defp class([{"class", class}]), do: class
 
-  defp add_section(@empty_queue, contents), do: contents
-  defp add_section(doc, contents), do: push(doc, ["\n\n", to_string(contents), "\n\n"])
+  defp add_section(@empty_queue, contents, _opts), do: to_string(contents)
+  defp add_section(doc, contents, %{prefix: ""}), do: push(doc, ["\n\n", to_string(contents)])
+  defp add_section(doc, contents, %{prefix: prefix}), do: push(doc, ["\n#{String.trim(prefix)}\n", to_string(contents)])
+
+  defp prepend_prefix(content, %{parent: :blockquote}),
+    do:
+      content
+      |> to_string()
+      |> String.replace(~r/^(?!(\n|>))/m, "> ")
+      |> String.replace("\n\n", "\n>\n")
+
+  defp prepend_prefix(content, _opts), do: content
 
   defp ensure_final_newline(string) do
     if String.contains?(string, "\n"),

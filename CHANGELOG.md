@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Handle `ex_doc`-style [admonition blocks](https://hexdocs.pm/ex_doc/readme.html#admonition-blocks).
+
 ## 0.3.0
 
 - Multi-line markdown documents are formatted with a trailing newline.
