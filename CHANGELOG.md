@@ -1,5 +1,7 @@
 # Changelog
 
+## 0.5.0
+
 - Handle images.
 
 ## 0.4.1
