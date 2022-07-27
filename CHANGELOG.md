@@ -1,5 +1,7 @@
 # Changelog
 
+- Handle images.
+
 ## 0.4.1
 
 - Fixup docs.

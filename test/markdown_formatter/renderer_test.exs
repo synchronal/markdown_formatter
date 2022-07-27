@@ -45,6 +45,13 @@ defmodule MarkdownFormatter.RendererTest do
       |> assert_eq("[I am a link](path/to/file.md)")
     end
 
+    test "renders images" do
+      "![alt text](./image.png)"
+      |> parse!()
+      |> Renderer.to_markdown()
+      |> assert_eq("![alt text](./image.png)")
+    end
+
     test "renders simple links" do
       "http://example.com/path"
       |> parse!()
@@ -221,6 +228,8 @@ defmodule MarkdownFormatter.RendererTest do
       2. With elements
 
       ## subheader
+
+      ![I am an image](path/to/image.png)
       """
       |> parse!()
       |> Renderer.to_markdown()
@@ -240,6 +249,8 @@ defmodule MarkdownFormatter.RendererTest do
       1. With elements
 
       ## subheader
+
+      ![I am an image](path/to/image.png)
       """)
     end
 

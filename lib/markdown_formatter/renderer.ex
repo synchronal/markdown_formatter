@@ -118,6 +118,10 @@ defmodule MarkdownFormatter.Renderer do
   defp render({"blockquote", [], contents, %{}}, doc, opts),
     do: add_section(doc, render(contents, Q.new(), S.parent(opts, :blockquote) |> S.prefix("> ")), opts)
 
+  # image
+  defp render({"img", [{"src", src}, {"alt", alt}], [], %{}}, doc, _opts),
+    do: push(doc, ["![#{alt}](#{src})"])
+
   # links
   defp render({"a", [{"href", path}], [path], %{}}, doc, _opts),
     do: push(doc, [path])
