@@ -30,7 +30,7 @@ defmodule MarkdownFormatter.MixProject do
       {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false},
       {:earmark_parser, "~> 1.4"},
       {:ex_doc, "~> 0.28.4", only: :dev, runtime: false},
-      {:mix_audit, "~> 1.0", only: [:dev, :test], runtime: false}
+      {:mix_audit, "~> 2.0", only: [:dev, :test], runtime: false}
     ]
 
   defp dialyzer,
