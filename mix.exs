@@ -29,7 +29,7 @@ defmodule MarkdownFormatter.MixProject do
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false},
       {:earmark_parser, "~> 1.4"},
-      {:ex_doc, "~> 0.28.4", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.29", only: :dev, runtime: false},
       {:mix_audit, "~> 2.0", only: [:dev, :test], runtime: false}
     ]
 
