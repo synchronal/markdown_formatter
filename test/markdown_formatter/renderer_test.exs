@@ -216,6 +216,25 @@ defmodule MarkdownFormatter.RendererTest do
       > You should read me.
       """)
     end
+
+    test "renders collapsible items" do
+      """
+      <details>
+      <summary>Preview title</summary>
+
+      Some extra content.
+      </details>
+      """
+      |> parse!()
+      |> Renderer.to_markdown()
+      |> assert_eq("""
+      <details>
+      <summary>Preview title</summary>
+
+      Some extra content.
+      </details>
+      """)
+    end
   end
 
   describe "to_markdown documents" do

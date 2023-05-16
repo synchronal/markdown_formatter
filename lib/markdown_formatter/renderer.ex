@@ -161,6 +161,9 @@ defmodule MarkdownFormatter.Renderer do
       doc
       |> push([with_depth(opts.prefix, opts.depth - 1), render(contents, Q.new(), opts)])
 
+  defp render({tag, [], [contents], %{verbatim: true}}, doc, _opts) when is_binary(contents),
+    do: push(doc, ["<#{tag}>\n#{contents}\n</#{tag}>"])
+
   # text node
   defp render([text], @empty_queue, opts) when is_binary(text), do: text |> reformat(opts)
   defp render(text, @empty_queue, opts) when is_binary(text), do: text |> reformat(opts)

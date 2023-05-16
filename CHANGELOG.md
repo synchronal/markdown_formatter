@@ -1,5 +1,6 @@
 # Changelog
 
+- Unknown tags which are parsed with `verbatim: true` are rendered as-is.
 - Handle image links with titles.
 
 ## 0.5.0
