@@ -119,6 +119,9 @@ defmodule MarkdownFormatter.Renderer do
     do: add_section(doc, render(contents, Q.new(), S.parent(opts, :blockquote) |> S.prefix("> ")), opts)
 
   # image
+  defp render({"img", [{"src", src}, {"alt", alt}, {"title", title}], [], %{}}, doc, _opts),
+    do: push(doc, ["![#{alt}](#{src} \"#{title}\")"])
+
   defp render({"img", [{"src", src}, {"alt", alt}], [], %{}}, doc, _opts),
     do: push(doc, ["![#{alt}](#{src})"])
 
