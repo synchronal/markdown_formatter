@@ -1,5 +1,7 @@
 # Changelog
 
+- Handle image links with titles.
+
 ## 0.5.0
 
 - Handle images.

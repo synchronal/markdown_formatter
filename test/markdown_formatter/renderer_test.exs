@@ -45,20 +45,20 @@ defmodule MarkdownFormatter.RendererTest do
       |> assert_eq("[I am a link](path/to/file.md)")
     end
 
-    test "renders CI badges" do
+    test "renders images" do
+      "![alt text](./image.png)"
+      |> parse!()
+      |> Renderer.to_markdown()
+      |> assert_eq("![alt text](./image.png)")
+    end
+
+    test "renders images with title attributes" do
       ~s|[![CI](https://github.com/synchronal/pages/actions/workflows/tests.yml/badge.svg "CI")](https://github.com/synchronal/pages/actions)|
       |> parse!()
       |> Renderer.to_markdown()
       |> assert_eq(
         ~s|[![CI](https://github.com/synchronal/pages/actions/workflows/tests.yml/badge.svg "CI")](https://github.com/synchronal/pages/actions)|
       )
-    end
-
-    test "renders images" do
-      "![alt text](./image.png)"
-      |> parse!()
-      |> Renderer.to_markdown()
-      |> assert_eq("![alt text](./image.png)")
     end
 
     test "renders simple links" do
