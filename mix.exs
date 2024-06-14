@@ -11,7 +11,7 @@ defmodule MarkdownFormatter.MixProject do
       description: "A mix format plugin for markdown files",
       dialyzer: dialyzer(),
       docs: docs(),
-      elixir: "~> 1.13",
+      elixir: "~> 1.15",
       elixirc_paths: elixirc_paths(Mix.env()),
       homepage_url: @scm_url,
       name: "MarkdownFormatter",

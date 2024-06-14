@@ -1,5 +1,8 @@
 # Changelog
 
+- Verify support for Elixir 1.17.0.
+- *Breaking*: Drop support for Elixir older than 1.15.0.
+
 ## 0.6.0
 
 - Unknown tags which are parsed with `verbatim: true` are rendered as-is.
