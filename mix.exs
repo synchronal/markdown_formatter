@@ -2,7 +2,7 @@ defmodule MarkdownFormatter.MixProject do
   use Mix.Project
 
   @scm_url "https://github.com/synchronal/markdown_formatter"
-  @version "0.6.0"
+  @version "1.0.0"
 
   def project do
     [
