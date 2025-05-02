@@ -67,7 +67,8 @@ defmodule MarkdownFormatter.MixProject do
       licenses: ["Apache-2.0"],
       links: %{
         "GitHub" => @scm_url,
-        "Change Log" => "https://hexdocs.pm/markdown_formatter/changelog.html"
+        "Change Log" => "https://hexdocs.pm/markdown_formatter/changelog.html",
+        "Sponsor" => "https://github.com/sponsors/reflective-dev"
       },
       maintainers: ["synchronal.dev", "Eric Saxby"],
       links: %{github: @scm_url}
