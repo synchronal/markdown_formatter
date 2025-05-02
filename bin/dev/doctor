@@ -15,21 +15,13 @@ fi
 
 cecho --green "\n▸" --bright-bold-cyan "Running initial doctor checks..."
 
-check "asdf: installed" \
-  "command -v asdf" \
-  "open 'https://asdf-vm.com/#/core-manage-asdf'"
+check "mise: installed" \
+  "command -v mise" \
+  "brew install mise"
 
-check "asdf: erlang plugin installed" \
-  "asdf plugin-list | grep erlang" \
-  "asdf plugin-add erlang"
-
-check "asdf: elixir plugin installed" \
-  "asdf plugin-list | grep elixir" \
-  "asdf plugin-add elixir"
-
-check "asdf: tools are installed" \
-  "asdf which erl > /dev/null && asdf which elixir > /dev/null" \
-  "asdf install"
+check "mise: tools are installed" \
+  "mise outdated" \
+  "mise upgrade"
 
 echo ""
 
