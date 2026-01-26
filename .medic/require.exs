@@ -1,3 +1,3 @@
 Mix.install([
-  {:medic, "~> 1.8", force: true}
+  {:medic, "~> 2.0", force: true}
 ])
