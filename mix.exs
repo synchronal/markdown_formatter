@@ -4,6 +4,14 @@ defmodule MarkdownFormatter.MixProject do
   @scm_url "https://github.com/synchronal/markdown_formatter"
   @version "1.0.0"
 
+  def application,
+    do: [extra_applications: [:logger]]
+
+  def cli,
+    do: [
+      preferred_envs: [credo: :test, dialyzer: :test]
+    ]
+
   def project do
     [
       app: :markdown_formatter,
@@ -16,14 +24,13 @@ defmodule MarkdownFormatter.MixProject do
       homepage_url: @scm_url,
       name: "MarkdownFormatter",
       package: package(),
-      preferred_cli_env: [credo: :test, dialyzer: :test],
       source_url: @scm_url,
       start_permanent: Mix.env() == :prod,
       version: @version
     ]
   end
 
-  def application, do: [extra_applications: [:logger]]
+  # # #
 
   defp deps,
     do: [
