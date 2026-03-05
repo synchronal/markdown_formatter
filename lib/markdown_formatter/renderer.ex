@@ -161,6 +161,14 @@ defmodule MarkdownFormatter.Renderer do
       doc
       |> push([with_depth(opts.prefix, opts.depth - 1), render(contents, Q.new(), opts)])
 
+  # HTML comments
+  defp render({:comment, [], contents, %{comment: true}}, doc, opts),
+    do: add_section(doc, ["<!--", Enum.join(contents), "-->"], opts)
+
+  # tables
+  defp render({"table", _attrs, contents, %{}}, doc, opts),
+    do: add_section(doc, table_to_markdown(contents, opts), opts)
+
   defp render({tag, [], [contents], %{verbatim: true}}, doc, _opts) when is_binary(contents),
     do: push(doc, ["<#{tag}>\n#{contents}\n</#{tag}>"])
 
@@ -230,4 +238,40 @@ defmodule MarkdownFormatter.Renderer do
 
   defp with_prefix(doc, contents, prefix, opts),
     do: contents |> render(doc, S.prefix(opts, prefix) |> S.inc())
+
+  defp table_to_markdown(nodes, opts) do
+    header_cells =
+      Enum.find_value(nodes, [], fn
+        {"thead", _, [{"tr", _, cells, %{}}], %{}} -> cells
+        _ -> nil
+      end)
+
+    body_rows =
+      Enum.find_value(nodes, [], fn
+        {"tbody", _, rows, %{}} -> rows
+        _ -> nil
+      end)
+
+    header = Enum.map_join(header_cells, " | ", &cell_content(&1, opts))
+
+    separator =
+      Enum.map_join(header_cells, " | ", fn {_, attrs, _, %{}} ->
+        case List.keyfind(attrs, "style", 0) do
+          {"style", "text-align: left;"} -> ":---"
+          {"style", "text-align: right;"} -> "---:"
+          {"style", "text-align: center;"} -> ":---:"
+          _ -> "---"
+        end
+      end)
+
+    data_rows =
+      Enum.map(body_rows, fn {"tr", _, cells, %{}} ->
+        "| " <> Enum.map_join(cells, " | ", &cell_content(&1, opts)) <> " |"
+      end)
+
+    (["| #{header} |", "| #{separator} |"] ++ data_rows) |> Enum.join("\n")
+  end
+
+  defp cell_content({_tag, _attrs, contents, %{}}, opts),
+    do: render(contents, Q.new(), S.reset(opts)) |> to_string() |> String.trim()
 end
