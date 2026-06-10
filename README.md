@@ -16,7 +16,7 @@ file an issue or contact us at [contact@reflective.dev](mailto:contact@reflectiv
 ```elixir
 def deps do
   [
-    {:markdown_formatter, "~> 0.6", only: :dev, runtime: false}
+    {:markdown_formatter, "~> 1.0", only: :dev, runtime: false}
   ]
 end
 ```
