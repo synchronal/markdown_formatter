@@ -164,6 +164,10 @@ defmodule MarkdownFormatter.Renderer do
   defp render({tag, [], [contents], %{verbatim: true}}, doc, _opts) when is_binary(contents),
     do: push(doc, ["<#{tag}>\n#{contents}\n</#{tag}>"])
 
+  # comments
+  defp render({:comment, [], contents, %{comment: true}}, doc, opts),
+    do: add_section(doc, ["<!--", Enum.join(contents, "\n"), "-->"], opts)
+
   # text node
   defp render([text], @empty_queue, opts) when is_binary(text), do: text |> reformat(opts)
   defp render(text, @empty_queue, opts) when is_binary(text), do: text |> reformat(opts)

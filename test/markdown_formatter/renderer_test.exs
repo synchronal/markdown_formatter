@@ -217,6 +217,27 @@ defmodule MarkdownFormatter.RendererTest do
       """)
     end
 
+    test "renders html comments" do
+      """
+      <!--
+        SPDX-FileCopyrightText: Someone
+        SPDX-License-Identifier: Apache-2.0
+      -->
+
+      # header
+      """
+      |> parse!()
+      |> Renderer.to_markdown()
+      |> assert_eq("""
+      <!--
+        SPDX-FileCopyrightText: Someone
+        SPDX-License-Identifier: Apache-2.0
+      -->
+
+      # header
+      """)
+    end
+
     test "renders collapsible items" do
       """
       <details>
