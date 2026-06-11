@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.0
+
+- Pass HTML comments through unmodified (thanks fhunleth!).
+
 ## 1.0.0
 
 - Verify support for Elixir 1.17.0.
