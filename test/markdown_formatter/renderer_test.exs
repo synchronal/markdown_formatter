@@ -238,6 +238,102 @@ defmodule MarkdownFormatter.RendererTest do
       """)
     end
 
+    test "renders tables" do
+      """
+      | Name | Count |
+      |---|---|
+      | apples | 1 |
+      | clementines | 10 |
+      """
+      |> parse!()
+      |> Renderer.to_markdown()
+      |> assert_eq("""
+      | Name        | Count |
+      | ----------- | ----- |
+      | apples      | 1     |
+      | clementines | 10    |
+      """)
+    end
+
+    test "renders tables without outer pipes" do
+      """
+      Name | Count
+      --- | ---
+      apples | 1
+      clementines | 10
+      """
+      |> parse!()
+      |> Renderer.to_markdown()
+      |> assert_eq("""
+      | Name        | Count |
+      | ----------- | ----- |
+      | apples      | 1     |
+      | clementines | 10    |
+      """)
+    end
+
+    test "renders tables with column alignments" do
+      """
+      | Left | Center | Right |
+      | --- | :----: | ----: |
+      | a | bb | ccc |
+      """
+      |> parse!()
+      |> Renderer.to_markdown()
+      |> assert_eq("""
+      | Left | Center | Right |
+      | :--- | :----: | ----: |
+      | a    | bb     | ccc   |
+      """)
+    end
+
+    test "renders tables with no rows" do
+      """
+      | A | B | C |
+      | --- | --- | ---- |
+      """
+      |> parse!()
+      |> Renderer.to_markdown()
+      |> assert_eq("""
+      | A   | B   | C   |
+      | --- | --- | --- |
+      """)
+    end
+
+    test "renders tables without wrapping long rows" do
+      """
+      | A | B | C | D | E |
+      | --- | --- | --- | --- | --- |
+      | 0123456789 | 0123456789 | 0123456789 | 0123456789 | 0123456789 |
+      """
+      |> parse!()
+      |> Renderer.to_markdown(line_length: 30)
+      |> assert_eq("""
+      | A          | B          | C          | D          | E          |
+      | ---------- | ---------- | ---------- | ---------- | ---------- |
+      | 0123456789 | 0123456789 | 0123456789 | 0123456789 | 0123456789 |
+      """)
+    end
+
+    test "renders tables with internal formatting" do
+      """
+      | What | Example |
+      | --- | ---- |
+      | Bold and italics | This is _italics_ and **bold**. |
+      | Link | A [Link](path/to/file.txt) |
+      | Image | ![I am an image](path/to/image.png) |
+      """
+      |> parse!()
+      |> Renderer.to_markdown()
+      |> assert_eq("""
+      | What             | Example                             |
+      | ---------------- | ----------------------------------- |
+      | Bold and italics | This is *italics* and **bold**.     |
+      | Link             | A [Link](path/to/file.txt)          |
+      | Image            | ![I am an image](path/to/image.png) |
+      """)
+    end
+
     test "renders collapsible items" do
       """
       <details>

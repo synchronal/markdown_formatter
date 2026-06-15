@@ -161,6 +161,10 @@ defmodule MarkdownFormatter.Renderer do
       doc
       |> push([with_depth(opts.prefix, opts.depth - 1), render(contents, Q.new(), opts)])
 
+  # tables
+  defp render({"table", [], contents, %{}}, doc, opts),
+    do: add_section(doc, render_table(contents, opts), opts)
+
   defp render({tag, [], [contents], %{verbatim: true}}, doc, _opts) when is_binary(contents),
     do: push(doc, ["<#{tag}>\n#{contents}\n</#{tag}>"])
 
@@ -201,6 +205,58 @@ defmodule MarkdownFormatter.Renderer do
       do: string <> "\n",
       else: string
   end
+
+  defp render_table(sections, opts) do
+    rows =
+      for {tag, _attrs, trs, _meta} <- sections,
+          tag in ["thead", "tbody"],
+          {"tr", _tr_attrs, cells, _tr_meta} <- trs do
+        for {_cell_tag, attrs, contents, _cell_meta} <- cells do
+          text = contents |> render(Q.new(), S.reset(%{opts | line_length: :infinity})) |> to_string()
+          {table_alignment(attrs), text}
+        end
+      end
+
+    alignments = hd(rows) |> Enum.map(fn {alignment, _text} -> alignment end) |> table_alignments()
+
+    # Calculate column widths and force a minimum of 3 characters for cell alignment
+    widths =
+      rows
+      |> Enum.map(fn row -> Enum.map(row, fn {_alignment, text} -> String.length(text) end) end)
+      |> Enum.zip_with(&Enum.max/1)
+      |> Enum.map(&max(&1, 3))
+
+    [header | body] = Enum.map(rows, fn row -> Enum.map(row, fn {_alignment, text} -> text end) end)
+    [table_row(header, widths), table_separator(alignments, widths), Enum.map(body, &table_row(&1, widths))]
+  end
+
+  defp table_alignments(alignments) do
+    # EarmarkParser doesn't differentiate default alignment from left alignment.
+    # If all columns are left aligned, don't include alignment markers, but if
+    # one is right or center aligned, then include alignment markers for every
+    # column.
+    if Enum.all?(alignments, &(&1 == :left)) do
+      Enum.map(alignments, fn _alignment -> :default end)
+    else
+      alignments
+    end
+  end
+
+  defp table_alignment([{"style", "text-align: right;"}]), do: :right
+  defp table_alignment([{"style", "text-align: center;"}]), do: :center
+  defp table_alignment([{"style", "text-align: left;"}]), do: :left
+
+  defp table_row(cells, widths), do: ["|", Enum.zip_with(cells, widths, &table_cell/2), "\n"]
+  defp table_cell(text, width), do: [" ", String.pad_trailing(text, width), " |"]
+
+  defp table_separator(alignments, widths) do
+    ["|", Enum.zip_with(alignments, widths, &table_separator_cell/2), "\n"]
+  end
+
+  defp table_separator_cell(:default, width), do: [" ", String.duplicate("-", width), " |"]
+  defp table_separator_cell(:left, width), do: [" :", String.duplicate("-", width - 1), " |"]
+  defp table_separator_cell(:right, width), do: [" ", String.duplicate("-", width - 1), ": |"]
+  defp table_separator_cell(:center, width), do: [" :", String.duplicate("-", width - 2), ": |"]
 
   defp push(%Q{} = doc, contents), do: Q.push(doc, contents)
   defp push(doc, contents), do: doc |> Q.new() |> Q.push(contents)
