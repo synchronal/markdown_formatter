@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.0
+
+- Handle table formatting.
+  - Always include outer pipe markers.
+  - Only include alignment markers when at least one is present.
+  - Ignore line length to avoid wrapping tables.
+
 ## 1.1.0
 
 - Pass HTML comments through unmodified (thanks fhunleth!).
